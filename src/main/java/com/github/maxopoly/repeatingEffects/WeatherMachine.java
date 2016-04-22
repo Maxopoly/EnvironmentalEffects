@@ -13,9 +13,9 @@ import com.github.maxopoly.datarepresentations.Area;
  * weather will only be changed client side, because this supports multiple
  * areas on the same map and server side rain is global. Use this classes
  * methods to determine whether it's raining for players right now, they might
- * be in async with the server's weather. Players might walk into an area at
- * any time, so this runnable constantly schedules itself to ensure the weather
- * is right for every player. This doesn't mean it's rerolled everytime run() is
+ * be in async with the server's weather. Players might walk into an area at any
+ * time, so this runnable constantly schedules itself to ensure the weather is
+ * right for every player. This doesn't mean it's rerolled everytime run() is
  * run
  * 
  * @author Max
@@ -28,11 +28,12 @@ public class WeatherMachine extends RepeatingEffect {
 	boolean rain;
 	WeatherType currentWeather;
 	long rainUpdate;
-	int i=0;
+	int i = 0;
 
-	public WeatherMachine(JavaPlugin plugin, LinkedList<Area> areas, double rainChance,
+	public WeatherMachine(LinkedList<Area> includedAreas,
+			LinkedList<Area> excludedAreas, double rainChance,
 			long minRainDuration, long rainUpdate) {
-		super(plugin, areas,rainUpdate,null);
+		super(includedAreas, excludedAreas, rainUpdate, null);
 		this.rainChance = rainChance;
 		this.minRainDuration = minRainDuration;
 		this.rainUpdate = rainUpdate;
@@ -92,7 +93,7 @@ public class WeatherMachine extends RepeatingEffect {
 		}
 		return WeatherType.CLEAR;
 	}
-	
+
 	public void applyToPlayer(Player p) {
 		if (conditionsMet(p)) {
 			p.setPlayerWeather(getCurrentWeatherType());

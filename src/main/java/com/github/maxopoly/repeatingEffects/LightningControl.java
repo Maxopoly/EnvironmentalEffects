@@ -4,7 +4,6 @@ import java.util.LinkedList;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import com.github.maxopoly.datarepresentations.Area;
 import com.github.maxopoly.datarepresentations.PlayerEnvironmentState;
@@ -20,10 +19,10 @@ public class LightningControl extends RepeatingEffect {
 	boolean dealDamage;
 	int range;
 
-	public LightningControl(JavaPlugin plugin, LinkedList<Area> areas,
-			long updatetime, PlayerEnvironmentState pes, boolean dealDamage,
-			int range) {
-		super(plugin, areas, updatetime, pes);
+	public LightningControl(LinkedList<Area> includedAreas,
+			LinkedList<Area> excludedAreas, long updatetime,
+			PlayerEnvironmentState pes, boolean dealDamage, int range) {
+		super(includedAreas, excludedAreas, updatetime, pes);
 		this.dealDamage = dealDamage;
 		this.range = range;
 	}
@@ -38,8 +37,7 @@ public class LightningControl extends RepeatingEffect {
 					- (range);
 			int z = (int) p.getLocation().getZ() + rng.nextInt(range * 2)
 					- (range);
-			Location loc = new Location(p.getWorld(), x, p.getLocation()
-					.getBlockY(), z);
+			Location loc = p.getWorld().getHighestBlockAt(x, z).getLocation();
 			if (dealDamage) {
 				p.getWorld().spigot().strikeLightning(loc, false);
 			} else {

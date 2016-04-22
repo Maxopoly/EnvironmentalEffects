@@ -7,8 +7,12 @@ import java.util.Random;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Monster;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.Skeleton.SkeletonType;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -38,14 +42,36 @@ public class MobConfig {
 	private int amount;
 	private String deathMessage;
 	private String onHitMessage;
+	private LinkedList<Material> spawnOnBlocks;
+	private LinkedList<Material> doNotSpawnOnBlocks;
+	private LinkedList<Material> spawnInBlocks;
+	private int lureRange;
+	private int minimumLightLevel;
+	private int maximumLightLevel;
+	private boolean alternateVersion;
+	private String identifer;
+	private double helmetDropChance, chestDropChance, pantsDropChance,
+			bootsDropChance, inHandDropChance;
+	private boolean despawnOnChunkUnload;
+	private boolean canPickupItems;
+	private int health;
+	private int ySpawnRange;
 
-	public MobConfig(EntityType type, String name,
+	public MobConfig(String identifier, EntityType type, String name,
 			HashMap<PotionEffectType, Integer> buffs,
 			LinkedList<ItemStack> armour, LinkedList<ItemStack> drops,
 			HashMap<PotionEffect, Double> onHitDebuffs, String deathMessage,
 			double spawnChance, int amount, int range, int maxiumumTries,
-			String onHitMessage) {
+			String onHitMessage, LinkedList<Material> spawnOnBlocks,
+			LinkedList<Material> doNotSpawnOnBlocks,
+			LinkedList<Material> spawnInBlocks, int minimumLightLevel,
+			int maximumLightLevel, boolean alternativeVersion, int lureRange,
+			double helmetDropChance, double chestDropChance,
+			double pantsDropChance, double bootsDropChance,
+			double inHandDropChance, boolean despawnOnChunkOnLoad,
+			boolean canPickUpItems, int health, int ySpawnRange) {
 		this.name = name;
+		this.identifer = identifier;
 		this.type = type;
 		this.buffs = buffs;
 		this.armour = armour;
@@ -58,6 +84,22 @@ public class MobConfig {
 		this.deathMessage = deathMessage;
 		this.onHitDebuffs = onHitDebuffs;
 		this.onHitMessage = onHitMessage;
+		this.spawnOnBlocks = spawnOnBlocks;
+		this.spawnInBlocks = spawnInBlocks;
+		this.doNotSpawnOnBlocks = doNotSpawnOnBlocks;
+		this.minimumLightLevel = minimumLightLevel;
+		this.maximumLightLevel = maximumLightLevel;
+		this.alternateVersion = alternativeVersion;
+		this.lureRange = lureRange;
+		this.helmetDropChance = helmetDropChance;
+		this.chestDropChance = chestDropChance;
+		this.pantsDropChance = pantsDropChance;
+		this.bootsDropChance = bootsDropChance;
+		this.inHandDropChance = inHandDropChance;
+		this.despawnOnChunkUnload = despawnOnChunkOnLoad;
+		this.canPickupItems = canPickUpItems;
+		this.health = health;
+		this.ySpawnRange = ySpawnRange;
 	}
 
 	/**
@@ -71,88 +113,160 @@ public class MobConfig {
 	 *            center of the square in which the mob will be spawned
 	 * @return list of all mobs successfully spawned by this method
 	 */
-	public LinkedList<Monster> createMob(Location loc) {
+	public LinkedList<Entity> createMob(Location loc) {
 		if (rng.nextDouble() > spawnChance) {
 			return null;
 		}
-		Location spawnLoc;
-		int tries = 0;
-		do {
-			spawnLoc = new Location(loc.getWorld(), loc.getX()
-					+ rng.nextInt(range * 2) - range, loc.getY(), loc.getZ()
-					+ rng.nextInt(range * 2) - range);
-			tries++;
-		} while (loc.getWorld().getBlockAt(spawnLoc).getType() != Material.AIR
-				&& tries < maximumTries);
-		if (tries >= maximumTries) {
+		Location spawnLoc = findSpawningLocation(loc);
+		if (spawnLoc == null) {
 			return null;
 		}
-		LinkedList<Monster> resultMobs = new LinkedList<Monster>();
+		LinkedList<Entity> resultMobs = new LinkedList<Entity>();
 		for (int i = 0; i < amount; i++) {
-			Monster mob = (Monster) loc.getWorld().spawnEntity(spawnLoc, type);
-			if (mob != null) { // event wasn't cancelled
-				if (name != null && name != "") {
-					mob.setCustomName(name);
-					mob.setCustomNameVisible(true);
-				}
-				EntityEquipment eq = mob.getEquipment();
-				if (armour != null) {
-					for (ItemStack is : armour) {
-						setSlot(eq, is);
-					}
-				}
-				eq.setBootsDropChance(0F);
-				eq.setLeggingsDropChance(0F);
-				eq.setChestplateDropChance(0F);
-				eq.setHelmetDropChance(0F);
-				eq.setItemInHandDropChance(0F);
-				mob.setCanPickupItems(false);
-				mob.setRemoveWhenFarAway(false);
-				for (Map.Entry<PotionEffectType, Integer> current : buffs
-						.entrySet()) {
-					mob.addPotionEffect(new PotionEffect(current.getKey(),
-							Integer.MAX_VALUE, current.getValue()));
-					// That buff lasts for 68 years, that should be long enough
-				}
+			LivingEntity mob = (LivingEntity) createMobAt(spawnLoc);
+			if (mob != null) {
 				resultMobs.add(mob);
 			}
 		}
+
 		return resultMobs;
 	}
 
-	public LinkedList<Monster> createMobAt(Location loc) {
+	/**
+	 * The possible states while searching for feasible spawning locations
+	 *
+	 */
+	private enum BlockCountState {
+		NOTHING, FOUNDBASEBLOCK, ONEAIR;
+	}
+
+	public Location findSpawningLocation(Location loc) {
+		for (int i = 0; i < maximumTries; i++) {
+			int x = loc.getBlockX() + rng.nextInt(range * 2) - range;
+			int z = loc.getBlockZ() + rng.nextInt(range * 2) - range;
+			BlockCountState bcs = BlockCountState.NOTHING;
+			LinkedList<Integer> yLevels = new LinkedList<Integer>();
+			for (int y = Math.max(0, loc.getBlockY() - ySpawnRange); y <= Math.min(255,
+					loc.getBlockY() + ySpawnRange); y++) {
+				Material m = loc.getWorld().getBlockAt(x, y, z).getType();
+				switch (bcs) {
+				case NOTHING:
+					if ((spawnOnBlocks == null && m.isSolid() && (doNotSpawnOnBlocks == null || !doNotSpawnOnBlocks
+							.contains(m)))
+							|| (spawnOnBlocks != null && spawnOnBlocks
+									.contains(m))) {
+						bcs = BlockCountState.FOUNDBASEBLOCK;
+					}
+					break;
+				case FOUNDBASEBLOCK:
+					if ((spawnInBlocks == null && m == Material.AIR)
+							|| (spawnInBlocks != null && spawnInBlocks
+									.contains(m))) {
+						int light = loc.getWorld().getBlockAt(x, y, z)
+								.getLightLevel();
+
+						if (light >= minimumLightLevel
+								&& light <= maximumLightLevel) {
+							bcs = BlockCountState.ONEAIR;
+						}
+						break;
+					}
+					if ((spawnOnBlocks == null && m.isSolid() && (doNotSpawnOnBlocks == null || !doNotSpawnOnBlocks
+							.contains(m)))
+							|| (spawnOnBlocks != null && spawnOnBlocks
+									.contains(m))) {
+						// another good base block, just leave the counter
+						// as it is
+						break;
+					} else {
+						bcs = BlockCountState.NOTHING;
+					}
+				case ONEAIR:
+					if ((spawnInBlocks == null && m == Material.AIR)
+							|| (spawnInBlocks != null && spawnInBlocks
+									.contains(m))) {
+						yLevels.add(y);
+						bcs = BlockCountState.NOTHING;
+						break;
+					}
+					if ((spawnOnBlocks == null && m.isSolid() && (doNotSpawnOnBlocks == null || !doNotSpawnOnBlocks
+							.contains(m)))
+							|| (spawnOnBlocks != null && spawnOnBlocks
+									.contains(m))) {
+						// base block
+						bcs = BlockCountState.FOUNDBASEBLOCK;
+						break;
+					} else {
+						bcs = BlockCountState.NOTHING;
+					}
+				}
+			}
+			if (yLevels.size() > 0) {
+				return new Location(loc.getWorld(), x, yLevels.get(rng
+						.nextInt(yLevels.size())), z);
+			}
+		}
+		return null;
+	}
+
+	public Entity createMobAt(Location loc) {
 		if (rng.nextDouble() > spawnChance) {
 			return null;
 		}
-		LinkedList<Monster> resultMobs = new LinkedList<Monster>();
-		for (int i = 0; i < amount; i++) {
-			Monster mob = (Monster) loc.getWorld().spawnEntity(loc, type);
-			if (mob != null) { // event wasn't cancelled
-				if (name != null && name != "") {
-					mob.setCustomName(name);
-					mob.setCustomNameVisible(true);
-				}
-				EntityEquipment eq = mob.getEquipment();
+		LivingEntity mob = (LivingEntity) loc.getWorld().spawnEntity(loc, type);
+		if (mob != null) { // event wasn't cancelled
+			if (name != null && name != "") {
+				mob.setCustomName(name);
+				mob.setCustomNameVisible(true);
+			}
+			EntityEquipment eq = mob.getEquipment();
+			if (armour != null) {
 				for (ItemStack is : armour) {
 					setSlot(eq, is);
 				}
-				eq.setBootsDropChance(0F);
-				eq.setLeggingsDropChance(0F);
-				eq.setChestplateDropChance(0F);
-				eq.setHelmetDropChance(0F);
-				eq.setItemInHandDropChance(0F);
-				mob.setCanPickupItems(false);
-				mob.setRemoveWhenFarAway(false);
-				for (Map.Entry<PotionEffectType, Integer> current : buffs
-						.entrySet()) {
-					mob.addPotionEffect(new PotionEffect(current.getKey(),
-							Integer.MAX_VALUE, current.getValue()));
-					// That buff lasts for 68 years, that should be long enough
-				}
-				resultMobs.add(mob);
 			}
+			if (health != -1) {
+				mob.setMaxHealth(health);
+				mob.setHealth(health);
+			}
+			eq.setBootsDropChance((float) bootsDropChance);
+			eq.setLeggingsDropChance((float) pantsDropChance);
+			eq.setChestplateDropChance((float) chestDropChance);
+			eq.setHelmetDropChance((float) helmetDropChance);
+			eq.setItemInHandDropChance((float) inHandDropChance);
+			mob.setCanPickupItems(canPickupItems);
+			mob.setRemoveWhenFarAway(despawnOnChunkUnload);
+
+			switch (type) {
+			case SKELETON:
+				if (alternateVersion) {
+					((Skeleton) mob).setSkeletonType(SkeletonType.WITHER);
+				} else {
+					((Skeleton) mob).setSkeletonType(SkeletonType.NORMAL);
+				}
+				break;
+			case CREEPER:
+				if (alternateVersion) {
+					((Creeper) mob).setPowered(true);
+				} else {
+					((Creeper) mob).setPowered(false);
+				}
+			}
+
+			for (Map.Entry<PotionEffectType, Integer> current : buffs
+					.entrySet()) {
+				mob.addPotionEffect(new PotionEffect(current.getKey(),
+						Integer.MAX_VALUE, current.getValue(), false, false));
+				// That buff lasts for 68 years, that should be long enough
+			}
+			/*
+			 * if (lureRange != -1) { EnvironmentalEffects .getPlugin()
+			 * .getServer() .getScheduler() .scheduleSyncDelayedTask(
+			 * EnvironmentalEffects.getPlugin(), new MobLureDenier(lureRange,
+			 * mob, loc)); }
+			 */
 		}
-		return resultMobs;
+		return mob;
 	}
 
 	/**
@@ -248,6 +362,14 @@ public class MobConfig {
 	}
 
 	/**
+	 * @return The distance a mob can move away from it's spawn before it gets
+	 *         teleported back or -1 if no such behavior is wanted
+	 */
+	public int getLureRange() {
+		return lureRange;
+	}
+
+	/**
 	 * Sets how often this config tries to find a suitable location to spawn a
 	 * mob (no blocks in the way)
 	 * 
@@ -266,6 +388,16 @@ public class MobConfig {
 	 */
 	public int getRange() {
 		return range;
+	}
+
+	/**
+	 * To persist mobs and their special effects past restarts, the uuid of each
+	 * mob is stored together with the identifier of it's mobconfig
+	 * 
+	 * @return Identifier of this config
+	 */
+	public String getIdentifier() {
+		return identifer;
 	}
 
 	/**
@@ -381,6 +513,45 @@ public class MobConfig {
 	 */
 	public String onHitMessage() {
 		return onHitMessage;
+	}
+
+	/**
+	 * @return Which blocks were specified as material to spawn on, null if
+	 *         nothing was specified and every block except the for the
+	 *         forbidden ones are valid
+	 */
+	public LinkedList<Material> getBlocksToSpawnOn() {
+		return spawnOnBlocks;
+	}
+
+	/**
+	 * @return Which blocks are explicitly forbidden for this mob to spawn on or
+	 *         null if nothing was specified
+	 */
+	public LinkedList<Material> getBlockNotToSpawnOn() {
+		return doNotSpawnOnBlocks;
+	}
+
+	/**
+	 * @return Which blocks are considered "air" or space to spawn in for this
+	 *         mobconfig, null if nothing was specified and only air is accepted
+	 */
+	public LinkedList<Material> getBlockToSpawnIn() {
+		return spawnInBlocks;
+	}
+
+	/**
+	 * @return The maximum light level at which this mob can spawn
+	 */
+	public int getMaximumLightLevel() {
+		return maximumLightLevel;
+	}
+
+	/**
+	 * @return The minimum light level required for this mob to spawn
+	 */
+	public int getMinimumLightLevel() {
+		return minimumLightLevel;
 	}
 
 }

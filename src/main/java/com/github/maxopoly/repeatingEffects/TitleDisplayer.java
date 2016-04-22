@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import net.minecraft.server.v1_8_R3.IChatBaseComponent;
 import net.minecraft.server.v1_8_R3.PacketPlayOutTitle;
@@ -23,10 +22,10 @@ public class TitleDisplayer extends RepeatingEffect {
 	private int fadeOut;
 	private HashMap<UUID, Boolean> alreadyShownToPlayer;
 
-	public TitleDisplayer(JavaPlugin plugin, LinkedList<Area> areas,
+	public TitleDisplayer(LinkedList<Area> includedAreas, LinkedList <Area> excludedAreas,
 			long updateTime, PlayerEnvironmentState pes, String title,
 			String subtitle, int fadeIn, int stay, int fadeOut) {
-		super(plugin, areas, updateTime, pes);
+		super(includedAreas,excludedAreas, updateTime, pes);
 		this.title = title;
 		this.subtitle = subtitle;
 		this.fadeIn = fadeIn;

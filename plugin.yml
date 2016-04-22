@@ -1,6 +1,7 @@
 name: EnvironmentalEffects
 version: 1.0
 author: [Maxopoly]
+depend: [CivModCore]
 main: com.github.maxopoly.EnvironmentalEffects
 commands:
     ee:
@@ -16,6 +17,9 @@ commands:
         usage: /ee wrathofthegods
         permission: EE.ttk
 permissions:
+    EE.admin:
+        description: Allows you to bypass any effects, nothing will apply for you
+        default: op
     EE.reload:
         description: Allows player to reload the plugin by using /ee reload
         default: op 

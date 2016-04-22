@@ -29,6 +29,8 @@ public class Area {
 	private int zSize;
 	private int outerLimit;
 	private int innerLimit;
+	private int maximumY;
+	private int minimumY;
 
 	/**
 	 * Needed for the chunk collecting of ringshapes
@@ -47,14 +49,17 @@ public class Area {
 	 * @param center
 	 *            center of the ring
 	 */
-	public Area(Shape shape, int innerLimit, int outerLimit, Location center)
+	public Area(Shape shape, int innerLimit, int outerLimit, Location center, int minimumY, int maximumY)
 			throws ConfigParseException {
 		if (shape != Shape.RING) {
 			throw new ConfigParseException();
 		}
+		this.shape = shape;
 		this.innerLimit = innerLimit;
 		this.outerLimit = outerLimit;
 		this.center = center;
+		this.minimumY = minimumY;
+		this.maximumY = maximumY;
 	}
 
 	/**
@@ -74,6 +79,8 @@ public class Area {
 		if (shape != Shape.BIOME) {
 			throw new ConfigParseException();
 		}
+		this.minimumY = 0;
+		this.maximumY = 255;
 	}
 
 	/**
@@ -82,11 +89,14 @@ public class Area {
 	 * @param shape
 	 *            always Shape.GLOBAL
 	 */
-	public Area(Shape shape) throws ConfigParseException {
+	public Area(Shape shape)
+			throws ConfigParseException {
 		if (shape != Shape.GLOBAL) {
 			throw new ConfigParseException();
 		}
 		this.shape = shape;
+		this.minimumY = 0;
+		this.maximumY = 255;
 	}
 
 	/**
@@ -102,9 +112,9 @@ public class Area {
 	 *             thrown if the given shape is a biome or global, those cant
 	 *             have given sizes
 	 */
-	public Area(Shape shape, Location center, int size)
+	public Area(Shape shape, Location center, int size, int minimumY, int maximumY)
 			throws ConfigParseException {
-		this(shape, center, size, size);
+		this(shape, center, size, size,minimumY, maximumY);
 	}
 
 	/**
@@ -122,7 +132,7 @@ public class Area {
 	 *             thrown if this constructor is used with a global or biome
 	 *             shape, because those cant have given sizes
 	 */
-	public Area(Shape shape, Location center, int xSize, int zSize)
+	public Area(Shape shape, Location center, int xSize, int zSize, int minimumY, int maximumY)
 			throws ConfigParseException {
 		if (shape == Shape.BIOME || shape == Shape.GLOBAL) {
 			throw new ConfigParseException();
@@ -131,6 +141,8 @@ public class Area {
 		this.center = center;
 		this.xSize = xSize;
 		this.zSize = zSize;
+		this.minimumY = minimumY;
+		this.maximumY = maximumY;
 	}
 
 	/**
@@ -141,6 +153,9 @@ public class Area {
 	 * @return true if the location is inside the area, false if not
 	 */
 	public boolean isInArea(Location loc) {
+		if (loc.getBlockY() > maximumY || loc.getBlockY() < minimumY) {
+			return false;
+		}
 		switch (shape) {
 		case GLOBAL:
 			return true;
@@ -157,6 +172,13 @@ public class Area {
 			return false; // hopefully never gonna happen
 
 		}
+	}
+
+	/**
+	 * @return Whether this instance is global
+	 */
+	public boolean isGlobal() {
+		return shape == Shape.GLOBAL;
 	}
 
 	/**
@@ -275,6 +297,14 @@ public class Area {
 
 	private double getZDifference(Location loc) {
 		return Math.abs(loc.getZ() - center.getZ());
+	}
+	
+	public int getMaximumY() {
+		return maximumY;
+	}
+	
+	public int getMinimumY() {
+		return minimumY;
 	}
 
 }

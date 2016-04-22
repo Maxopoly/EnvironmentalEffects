@@ -3,7 +3,6 @@ package com.github.maxopoly.repeatingEffects;
 import java.util.LinkedList;
 
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -15,21 +14,22 @@ public class PotionBuff extends RepeatingEffect {
 	private long duration; // in ticks
 	private int level;
 
-	public PotionBuff(JavaPlugin plugin, LinkedList<Area> areas,
-			PotionEffectType pet, int level, long duration,
-			PlayerEnvironmentState pes) {
-		super(plugin, areas, (duration / 2), pes);
+	public PotionBuff(LinkedList<Area> includedAreas,
+			LinkedList<Area> excludedAreas, PotionEffectType pet, int level,
+			long duration, PlayerEnvironmentState pes) {
+		super(includedAreas, excludedAreas, (duration / 2), pes);
 		this.pet = pet;
-		this.level = level-1;
-		//for some reason applying a potion effect with level 1, will result
-		//in an ingame level 2 effect, because it is interpreted as an amplifier
-		//this just ensures the expected behavior from the config
+		this.level = level - 1;
+		// for some reason applying a potion effect with level 1, will result
+		// in an ingame level 2 effect, because it is interpreted as an
+		// amplifier
+		// this just ensures the expected behavior from the config
 		this.duration = duration;
 	}
 
 	public void applyToPlayer(Player p) {
 		if (conditionsMet(p)) {
-			PotionEffect pe = new PotionEffect(pet, (int)duration, level);
+			PotionEffect pe = new PotionEffect(pet, (int) duration, level);
 			p.addPotionEffect(pe, true);
 		}
 	}

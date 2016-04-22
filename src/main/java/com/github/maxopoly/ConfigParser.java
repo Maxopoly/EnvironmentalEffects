@@ -4,14 +4,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -26,11 +24,11 @@ import com.github.maxopoly.datarepresentations.MobConfig;
 import com.github.maxopoly.datarepresentations.PlayerEnvironmentState;
 import com.github.maxopoly.datarepresentations.Area.Shape;
 import com.github.maxopoly.exceptions.ConfigParseException;
-import com.github.maxopoly.managers.RepeatingEffectManager;
+import com.github.maxopoly.listeners.effects.SpawnerSpawnModifier;
+import com.github.maxopoly.listeners.effects.TerrainRestriction;
 import com.github.maxopoly.repeatingEffects.ArmourBasedDamage;
 import com.github.maxopoly.repeatingEffects.DaytimeModifier;
 import com.github.maxopoly.repeatingEffects.DispenserBuff;
-import com.github.maxopoly.repeatingEffects.EffectGenerator;
 import com.github.maxopoly.repeatingEffects.FireBallRain;
 import com.github.maxopoly.repeatingEffects.LightningControl;
 import com.github.maxopoly.repeatingEffects.RandomMobSpawningHandler;
@@ -39,24 +37,25 @@ import com.github.maxopoly.repeatingEffects.ReinforcementDecay;
 import com.github.maxopoly.repeatingEffects.TitleDisplayer;
 import com.github.maxopoly.repeatingEffects.WeatherMachine;
 
+import static vg.civcraft.mc.civmodcore.util.ConfigParsing.parseTime;
+
 public class ConfigParser {
 	JavaPlugin plugin;
-	private RepeatingEffectManager manager;
+	private EffectManager manager;
 	boolean fireballTerrainDamage;
 	boolean fireballTerrainIgnition;
 	boolean disableFirespread;
 	boolean cancelAllOtherSpawns;
-	HashMap<EntityType, MobConfig> spawnerConfig;
 
 	ConfigParser(JavaPlugin plugin) {
 		this.plugin = plugin;
-		this.manager = new RepeatingEffectManager();
+		this.manager = new EffectManager();
 	}
 
 	/**
 	 * Parses the config, creates everything needed and adds it to the manager
 	 */
-	public RepeatingEffectManager parseConfig() throws ConfigParseException {
+	public EffectManager parseConfig() throws ConfigParseException {
 		sendConsoleMessage("Initializing config");
 		plugin.saveDefaultConfig();
 		plugin.reloadConfig();
@@ -77,9 +76,10 @@ public class ConfigParser {
 		disableFirespread = config.getBoolean("firespread_disabled", false);
 		sendConsoleMessage("Disabling fire spread: "
 				+ String.valueOf(disableFirespread));
-		String worldname = config.getString("worldname");
+		String worldname = config.getString("worldname", "world");
 		sendConsoleMessage("Worldname is:" + worldname);
-		cancelAllOtherSpawns = config.getBoolean("cancel_natural_spawns");
+		cancelAllOtherSpawns = config
+				.getBoolean("cancel_natural_spawns", false);
 		sendConsoleMessage("Cancel natural spawns: " + cancelAllOtherSpawns);
 
 		// Intialize weather machines
@@ -96,7 +96,11 @@ public class ConfigParser {
 				LinkedList<Area> areas = parseAreas(
 						currentWeatherSection.getConfigurationSection("areas"),
 						worldname);
-				WeatherMachine wm = new WeatherMachine(plugin, areas,
+				LinkedList<Area> excludedAreas = parseAreas(
+						currentWeatherSection
+								.getConfigurationSection("excluded_areas"),
+						worldname);
+				WeatherMachine wm = new WeatherMachine(areas, excludedAreas,
 						rainChance, minRainDuration, rainUpdate);
 				manager.add(wm);
 				sendConsoleMessage("Initialized weather machine for " + key
@@ -122,12 +126,16 @@ public class ConfigParser {
 				LinkedList<Area> areas = parseAreas(
 						currentSection.getConfigurationSection("areas"),
 						worldname);
+				LinkedList<Area> excludedAreas = parseAreas(
+						currentSection
+								.getConfigurationSection("excluded_areas"),
+						worldname);
 				if (currentSection.contains("nightspeed")) {
-					dtm = new DaytimeModifier(plugin, areas, startingTime,
-							daySpeed, nightSpeed, timeUpdate);
+					dtm = new DaytimeModifier(areas, excludedAreas,
+							startingTime, daySpeed, nightSpeed, timeUpdate);
 				} else {
-					dtm = new DaytimeModifier(plugin, areas, startingTime,
-							daySpeed, daySpeed, timeUpdate);
+					dtm = new DaytimeModifier(areas, excludedAreas,
+							startingTime, daySpeed, daySpeed, timeUpdate);
 				}
 				manager.add(dtm);
 				sendConsoleMessage("Initialized daytime modifier "
@@ -180,10 +188,14 @@ public class ConfigParser {
 				LinkedList<Area> areas = parseAreas(
 						currentSection.getConfigurationSection("areas"),
 						worldname);
+				LinkedList<Area> excludedAreas = parseAreas(
+						currentSection
+								.getConfigurationSection("excluded_areas"),
+						worldname);
 				PlayerEnvironmentState pes = parsePlayerEnvironmentState(currentSection
 						.getConfigurationSection("player_environment_state"));
-				FireBallRain fbr = new FireBallRain(plugin, areas, frequency,
-						range, pes);
+				FireBallRain fbr = new FireBallRain(areas, excludedAreas,
+						frequency, range, pes);
 				manager.add(fbr);
 				sendConsoleMessage("Loaded fireball rain " + key
 						+ "; frequency:" + frequency + ", range:" + range);
@@ -204,10 +216,14 @@ public class ConfigParser {
 				LinkedList<Area> areas = parseAreas(
 						currentSection.getConfigurationSection("areas"),
 						worldname);
+				LinkedList<Area> excludedAreas = parseAreas(
+						currentSection
+								.getConfigurationSection("excluded_areas"),
+						worldname);
 				PlayerEnvironmentState pes = parsePlayerEnvironmentState(currentSection
 						.getConfigurationSection("player_environment_state"));
-				PotionBuff pb = new PotionBuff(plugin, areas, pet, level,
-						duration, pes);
+				PotionBuff pb = new PotionBuff(areas, excludedAreas, pet,
+						level, duration, pes);
 				manager.add(pb);
 				sendConsoleMessage("Loaded potion buff " + key + " type:"
 						+ pet.toString() + ",level:" + level + " duration:"
@@ -226,6 +242,10 @@ public class ConfigParser {
 				LinkedList<Area> areas = parseAreas(
 						currentSection.getConfigurationSection("areas"),
 						worldname);
+				LinkedList<Area> excludedAreas = parseAreas(
+						currentSection
+								.getConfigurationSection("excluded_areas"),
+						worldname);
 				long frequency = parseTime(currentSection
 						.getString("frequency"));
 				PlayerEnvironmentState pes = parsePlayerEnvironmentState(currentSection
@@ -233,8 +253,11 @@ public class ConfigParser {
 				boolean dealDamage = currentSection.getBoolean("deal_damage",
 						true);
 				int range = currentSection.getInt("range", 32);
-				LightningControl lc = new LightningControl(plugin, areas,
-						frequency, pes, dealDamage, range);
+				LightningControl lc = new LightningControl(areas,
+						excludedAreas, frequency, pes, dealDamage, range);
+				sendConsoleMessage("Loaded lightning effect " + key
+						+ ", frequency:" + frequency + ",dealDamage:"
+						+ dealDamage + ",range:" + range);
 				manager.add(lc);
 			}
 		}
@@ -248,6 +271,10 @@ public class ConfigParser {
 						.getConfigurationSection(key);
 				LinkedList<Area> areas = parseAreas(
 						currentSection.getConfigurationSection("areas"),
+						worldname);
+				LinkedList<Area> excludedAreas = parseAreas(
+						currentSection
+								.getConfigurationSection("excluded_areas"),
 						worldname);
 				long frequency = parseTime(currentSection
 						.getString("frequency"));
@@ -265,8 +292,11 @@ public class ConfigParser {
 				LinkedList<ArmourType> boots = parseArmourTypeList(as, "boots");
 				ArmourState armourState = new ArmourState(head, chest, pants,
 						boots);
-				ArmourBasedDamage abd = new ArmourBasedDamage(plugin, areas,
-						frequency, pes, armourState, dmgMsg, dmg);
+				ArmourBasedDamage abd = new ArmourBasedDamage(areas,
+						excludedAreas, frequency, pes, armourState, dmgMsg, dmg);
+				sendConsoleMessage("Loaded armour based damage " + key
+						+ ";frequency:" + frequency + ",damageMessage:"
+						+ dmgMsg + ",damage:" + dmg);
 				manager.add(abd);
 			}
 		}
@@ -285,6 +315,10 @@ public class ConfigParser {
 						.getString("updatetime"));
 				PlayerEnvironmentState pes = parsePlayerEnvironmentState(currentSection
 						.getConfigurationSection("player_environment_state"));
+				LinkedList<Area> excludedAreas = parseAreas(
+						currentSection
+								.getConfigurationSection("excluded_areas"),
+						worldname);
 				LinkedList<MobConfig> mobconfigs = new LinkedList<MobConfig>();
 				ConfigurationSection mobconfigsection = currentSection
 						.getConfigurationSection("mobconfig");
@@ -299,7 +333,9 @@ public class ConfigParser {
 					throw new ConfigParseException("No mobconfigs for" + key);
 				}
 				RandomMobSpawningHandler msh = new RandomMobSpawningHandler(
-						plugin, areas, mobconfigs, updateTime, pes);
+						areas, excludedAreas, mobconfigs, updateTime, pes);
+				sendConsoleMessage("Created mob spawning " + key
+						+ ";frequency:" + updateTime);
 				manager.add(msh);
 			}
 		}
@@ -308,17 +344,32 @@ public class ConfigParser {
 
 		ConfigurationSection spawnerSection = config
 				.getConfigurationSection("spawner");
-		spawnerConfig = null;
 		if (spawnerSection != null) {
-			spawnerConfig = new HashMap<EntityType, MobConfig>();
 			for (String key : spawnerSection.getKeys(false)) {
+				HashMap<EntityType, MobConfig> spawnerConfig = new HashMap<EntityType, MobConfig>();
 				ConfigurationSection currentSection = spawnerSection
 						.getConfigurationSection(key);
-				EntityType spawn = EntityType.valueOf(currentSection
-						.getString("spawn"));
-				MobConfig mobconfig = parseMobConfig(currentSection
-						.getConfigurationSection("mobconfig"));
-				spawnerConfig.put(spawn, mobconfig);
+				LinkedList<Area> areas = parseAreas(
+						currentSection.getConfigurationSection("areas"),
+						worldname);
+				LinkedList<Area> excludedAreas = parseAreas(
+						currentSection
+								.getConfigurationSection("excluded_areas"),
+						worldname);
+				for (String mappingKey : currentSection
+						.getConfigurationSection("mobs").getKeys(false)) {
+					ConfigurationSection currentSubSection = currentSection
+							.getConfigurationSection("mobs")
+							.getConfigurationSection(mappingKey);
+					EntityType spawn = EntityType.valueOf(currentSubSection
+							.getString("spawn"));
+					MobConfig mobconfig = parseMobConfig(currentSubSection);
+					spawnerConfig.put(spawn, mobconfig);
+				}
+				SpawnerSpawnModifier ssm = new SpawnerSpawnModifier(areas,
+						excludedAreas, spawnerConfig);
+				sendConsoleMessage("Successfully parsed mob spawner config "
+						+ key);
 			}
 		}
 
@@ -335,16 +386,26 @@ public class ConfigParser {
 				LinkedList<Area> areas = parseAreas(
 						currentSection.getConfigurationSection("areas"),
 						worldname);
-				long fadeIn = parseTime(currentSection.getString("fadein"));
-				long fadeOut = parseTime(currentSection.getString("fadeout"));
-				long stay = parseTime(currentSection.getString("stay"));
+				LinkedList<Area> excludedAreas = parseAreas(
+						currentSection
+								.getConfigurationSection("excluded_areas"),
+						worldname);
+				long fadeIn = parseTime(currentSection
+						.getString("fadein", "1s"));
+				long fadeOut = parseTime(currentSection.getString("fadeout",
+						"1s"));
+				long stay = parseTime(currentSection.getString("stay", "1s"));
 				long updateTime = parseTime(currentSection
 						.getString("updatetime"));
 				PlayerEnvironmentState pes = parsePlayerEnvironmentState(currentSection
 						.getConfigurationSection("player_environment_state"));
-				TitleDisplayer td = new TitleDisplayer(plugin, areas,
+				TitleDisplayer td = new TitleDisplayer(areas, excludedAreas,
 						updateTime, pes, title, subtitle, (int) fadeIn,
 						(int) stay, (int) fadeOut);
+				sendConsoleMessage("Loaded title displayer " + key + ";title:"
+						+ title + ",subtitle:" + subtitle + ",fadein:" + fadeIn
+						+ ",stay:" + stay + ",fadeout:" + fadeOut
+						+ ",updatetime:" + updateTime);
 				manager.add(td);
 			}
 		}
@@ -358,6 +419,10 @@ public class ConfigParser {
 						.getConfigurationSection(key);
 				LinkedList<Area> areas = parseAreas(
 						currentSection.getConfigurationSection("areas"),
+						worldname);
+				LinkedList<Area> excludedAreas = parseAreas(
+						currentSection
+								.getConfigurationSection("excluded_areas"),
 						worldname);
 				int dmg = currentSection.getInt("extradamage", 0);
 				ConfigurationSection onHitDebuffSection = currentSection
@@ -383,8 +448,10 @@ public class ConfigParser {
 						onHitDebuffs.put(pe, chance);
 					}
 				}
-				DispenserBuff db = new DispenserBuff(plugin, areas, dmg,
+				DispenserBuff db = new DispenserBuff(areas, excludedAreas, dmg,
 						onHitDebuffs, infiniteArrows);
+				sendConsoleMessage("Loaded dispenser buff " + key + ";damage:"
+						+ dmg + ",infinitearrows:" + infiniteArrows);
 				manager.add(db);
 			}
 		}
@@ -401,9 +468,44 @@ public class ConfigParser {
 						worldname);
 				int amount = currentSection.getInt("amount");
 				long updateTime = currentSection.getInt("updatetime");
-				ReinforcementDecay rd = new ReinforcementDecay(plugin, areas,
+				ReinforcementDecay rd = new ReinforcementDecay(areas,
 						updateTime, amount);
 				manager.add(rd);
+				sendConsoleMessage("Loaded reinforcement decayer " + key
+						+ ";amount:" + amount + ",frequency:" + updateTime);
+			}
+		}
+
+		// Initialize block prevention
+		ConfigurationSection blockPreventionSection = config
+				.getConfigurationSection("block_prevention");
+		if (blockPreventionSection != null) {
+			for (String key : blockPreventionSection.getKeys(false)) {
+				ConfigurationSection currentSection = blockPreventionSection
+						.getConfigurationSection(key);
+				LinkedList<Area> areas = parseAreas(
+						currentSection.getConfigurationSection("areas"),
+						worldname);
+				LinkedList<Area> excludedAreas = parseAreas(
+						currentSection
+								.getConfigurationSection("excluded_areas"),
+						worldname);
+				PlayerEnvironmentState pes = parsePlayerEnvironmentState(currentSection
+						.getConfigurationSection("player_environment_state"));
+				boolean preventPlacing = currentSection.getBoolean(
+						"preventPlacing", false);
+				boolean preventBreaking = currentSection.getBoolean(
+						"preventBreaking", false);
+				boolean preventBuckets = currentSection.getBoolean(
+						"preventBuckets", false);
+				boolean preventIgnitions = currentSection.getBoolean(
+						"preventIgnitions", false);
+				boolean preventPearls = currentSection.getBoolean(
+						"preventPearls", false);
+				TerrainRestriction trl = new TerrainRestriction(areas,
+						excludedAreas, pes, preventPlacing, preventBreaking,
+						preventIgnitions, preventBuckets, preventPearls);
+				manager.add(trl);
 			}
 		}
 
@@ -420,6 +522,10 @@ public class ConfigParser {
 		int amount = currentMobConfig.getInt("amount", 1);
 		int maximumTries = currentMobConfig.getInt("maximum_spawn_attempts", 5);
 		String deathmsg = currentMobConfig.getString("deathmessage", null);
+		String identifier = currentMobConfig.getString("identifier");
+		if (identifier == null) {
+			identifier = currentMobConfig.getName();
+		}
 		double spawnChance = currentMobConfig.getDouble("spawn_chance");
 		String onHitMessage = currentMobConfig.getString("on_hit_message");
 		ConfigurationSection dropsSection = currentMobConfig
@@ -464,16 +570,59 @@ public class ConfigParser {
 				onHitDebuffs.put(pe, chance);
 			}
 		}
-		return new MobConfig(type, name, buffs, armour, drops, onHitDebuffs,
+		LinkedList<Material> blocksToSpawnOn = convertMaterialList(currentMobConfig
+				.getStringList("blocks_to_spawn_on"));
+		LinkedList<Material> blocksNotToSpawnOn = convertMaterialList(currentMobConfig
+				.getStringList("blocks_not_to_spawn_on"));
+		LinkedList<Material> blocksToSpawnIn = convertMaterialList(currentMobConfig
+				.getStringList("blocks_to_spawn_in"));
+		int minimumLightLevel = currentMobConfig.getInt("minimum_light_level",
+				0);
+		int maximumLightLevel = currentMobConfig.getInt("maximum_light_level",
+				15);
+		boolean alternativeVersion = currentMobConfig.getBoolean(
+				"alternative_version", false);
+		int lureRange = currentMobConfig.getInt("lurerange",-1);
+		double helmetDropChance = currentMobConfig.getDouble("helmet_dropchance", 0.0);
+		double chestDropChance = currentMobConfig.getDouble("chestplate_dropchance", 0.0);
+		double pantsDropChance = currentMobConfig.getDouble("leggings_dropchance", 0.0); 
+		double bootsDropChance = currentMobConfig.getDouble("boots_dropchance", 0.0);
+		double inHandDropChance = currentMobConfig.getDouble("item_in_hand_dropchance", 0.0);
+		boolean despawnOnChunkUnload =  currentMobConfig.getBoolean("despawn_on_chunk_unload", true);
+		boolean canPickUpItems = currentMobConfig.getBoolean("can_pickup_items", false);
+		int health = currentMobConfig.getInt("health", -1);
+		int ySpawnRange = currentMobConfig.getInt("y_spawn_range", 32);
+		sendConsoleMessage("Successfully parsed mobconfig, type:"
+				+ type.toString() + ",name:" + name + ",spawnChance:"
+				+ spawnChance + ",amount:" + amount + ",minimumLightLevel:"
+				+ minimumLightLevel + ",maximumLightLevel:" + maximumLightLevel
+				+ ",alternativeVersion:" + alternativeVersion);
+		return new MobConfig(identifier, type, name, buffs, armour, drops, onHitDebuffs,
 				deathmsg, spawnChance, amount, range, maximumTries,
-				onHitMessage);
+				onHitMessage, blocksToSpawnOn, blocksNotToSpawnOn,
+				blocksToSpawnIn, minimumLightLevel, maximumLightLevel,
+				alternativeVersion,lureRange, helmetDropChance, chestDropChance,
+				pantsDropChance, bootsDropChance,
+				 inHandDropChance, despawnOnChunkUnload,
+				canPickUpItems, health, ySpawnRange);
+	}
+
+	public LinkedList<Material> convertMaterialList(List<String> input) {
+		if (input == null || input.size() == 0) {
+			return null;
+		}
+		LinkedList<Material> output = new LinkedList<Material>();
+		for (String s : input) {
+			output.add(Material.valueOf(s));
+		}
+		return output;
+
 	}
 
 	private LinkedList<Area> parseAreas(ConfigurationSection cs,
 			String worldname) throws ConfigParseException {
 		if (cs == null) {
-			throw new ConfigParseException(
-					"No area was specified for an effect");
+			return null;
 		}
 		LinkedList<Area> areas = new LinkedList<Area>();
 		List<String> biomes = cs.getStringList("biomes");
@@ -498,6 +647,8 @@ public class ConfigParser {
 			for (String current : locs.getKeys(false)) {
 				ConfigurationSection currentSection = locs
 						.getConfigurationSection(current);
+				int minimumY = currentSection.getInt("minimum_y", 0);
+				int maximumY = currentSection.getInt("maximum_y", 255);
 				Shape shape = Shape.valueOf(currentSection.getString("shape"));
 				Area temp = null;
 				Location center;
@@ -509,7 +660,8 @@ public class ConfigParser {
 					center = parseLocation(
 							currentSection.getConfigurationSection("center"),
 							worldname);
-					temp = new Area(shape, center, xSize, zSize);
+					temp = new Area(shape, center, xSize, zSize, minimumY,
+							maximumY);
 					break;
 				case RING:
 					int innerRadius = currentSection.getInt("inner_limit");
@@ -517,7 +669,8 @@ public class ConfigParser {
 					center = parseLocation(
 							currentSection.getConfigurationSection("center"),
 							worldname);
-					temp = new Area(shape, innerRadius, outerRadius, center);
+					temp = new Area(shape, innerRadius, outerRadius, center,
+							minimumY, maximumY);
 					break;
 				default:
 					throw new ConfigParseException();
@@ -535,66 +688,6 @@ public class ConfigParser {
 		return new Location(plugin.getServer().getWorld(worldname), x, y, z);
 	}
 
-	private long parseTime(String arg) throws ConfigParseException {
-		long result = 0;
-		boolean set = true;
-		try {
-			result += Long.parseLong(arg);
-		} catch (NumberFormatException e) {
-			set = false;
-		}
-		if (set) {
-			return result;
-		}
-		while (!arg.equals("")) {
-			int length = 0;
-			switch (arg.charAt(arg.length() - 1)) {
-			case 't': // ticks
-				long ticks = getLastNumber(arg);
-				result += ticks;
-				length = String.valueOf(ticks).length() + 1;
-				break;
-			case 's': // seconds
-				long seconds = getLastNumber(arg);
-				result += 20 * seconds; // 20 ticks in a second
-				length = String.valueOf(seconds).length() + 1;
-				break;
-			case 'm': // minutes
-				long minutes = getLastNumber(arg);
-				result += 20 * 60 * minutes;
-				length = String.valueOf(minutes).length() + 1;
-				break;
-			case 'h': // hours
-				long hours = getLastNumber(arg);
-				result += 20 * 3600 * hours;
-				length = String.valueOf(hours).length() + 1;
-				break;
-			case 'd': // days, mostly here to define a 'never'
-				long days = getLastNumber(arg);
-				result += 20 * 3600 * 24 * days;
-				length = String.valueOf(days).length() + 1;
-			default:
-				throw new ConfigParseException(arg.charAt(arg.length() - 1)
-						+ " is not a valid time description character");
-			}
-			arg = arg.substring(0, arg.length() - length);
-		}
-		return result;
-	}
-
-	private long getLastNumber(String arg) {
-		StringBuilder number = new StringBuilder();
-		for (int i = arg.length() - 2; i >= 0; i--) {
-			if (Character.isDigit(arg.charAt(i))) {
-				number.insert(0, arg.substring(i, i + 1));
-			} else {
-				break;
-			}
-		}
-		long result = Long.parseLong(number.toString());
-		return result;
-	}
-
 	private LinkedList<ItemStack> getItemStacks(ConfigurationSection cs) {
 		LinkedList<ItemStack> result = new LinkedList<ItemStack>();
 		for (String key : cs.getKeys(false)) {
@@ -602,6 +695,10 @@ public class ConfigParser {
 					.getConfigurationSection(key);
 			Material material = Material.getMaterial(currentSection
 					.getString("material"));
+			if (material == null) {
+				sendConsoleMessage("Material was null for "
+						+ currentSection.toString());
+			}
 			int amount = currentSection.getInt("amount", 1);
 			ItemStack item = new ItemStack(material, amount);
 			ItemMeta meta = item.getItemMeta();

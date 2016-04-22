@@ -1,0 +1,68 @@
+worldname: Candyland
+cancel_natural_spawns: true
+firespread_disabled: true
+
+weathermachines:
+  global:
+    rain_chance: 0.0
+    minimum_rain_duration: 1d
+    areas:
+      biomes:
+       - GLOBAL
+daytime_modifier:
+  global:
+    dayspeed: 0.0
+    starting_time: 18000
+    areas:
+      biomes:
+       - GLOBAL
+
+monster:
+ normalsection:
+  updatetime: 5s
+  areas:
+    biomes: 
+     - SKY
+  mobconfig:
+    enderman:
+      type: ENDERMAN
+      spawn_chance: 0.4
+      identifier: enderman
+    candyking:
+      type: ENDERMAN
+      spawn_chance: 0.03
+      identifier: enderking
+      name: §1C§2a§3n§4d§5y King
+      buffs:
+            speed1:
+                  type: SPEED
+                  level: 1
+      on_hit_debuffs:
+            weakness:
+                  type: WEAKNESS
+                  level: 1
+      drops:
+           pearls:
+                   material: ENDER_PEARL
+                   amount: 4
+           cakes:
+                   material: CAKE_BLOCK
+                   amount: 1
+    chicken:
+      type: CHICKEN
+      spawn_chance: 0.03
+      identifier: chicken
+      name: §1C§2a§3n§4d§5y Chicken
+      drops:
+                 cakes:
+                   material: CAKE_BLOCK
+                   amount: 1
+      buffs:
+            speed3:
+                    type: SPEED
+                    level: 3
+    silverfish:
+      type: SILVERFISH 
+      spawn_chance: 0.3
+      identifier: silverfish
+      name: §1C§2a§3n§4d§5y Fish

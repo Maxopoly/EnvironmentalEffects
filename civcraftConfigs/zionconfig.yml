@@ -1,0 +1,278 @@
+worldname: Zion
+cancel_natural_spawns: true
+disable_fireball_terraindamage: true
+disable_fireball_terrainignition: true
+firespread_disabled: true
+
+weathermachines:
+  global:
+    rain_chance: 0.0
+    minimum_rain_duration: 1d
+    areas:
+      biomes:
+       - HELL
+  hell:
+    rain_chance: 0.1
+    minimum_rain_duration: 3h
+    areas:
+      biomes:
+       - EXTREME_HILLS
+daytime_modifier:
+  global:
+    dayspeed: 0.33
+    starting_time: 0
+    areas:
+      biomes:
+       - GLOBAL
+
+fireball:
+ netherFireRain:
+   frequency: 1m
+   range: 16
+   areas:
+   biomes:
+    - HELL
+   player_environment_state:
+    night: false
+
+monster:
+ normalsection:
+  updatetime: 10s
+  areas:
+    biomes: 
+     - EXTREME_HILLS
+  mobconfig:
+    zombies:
+      type: ZOMBIE
+      spawn_chance: 0.1     
+      identifier: zombie
+      maximum_light_level: 7
+      despawn_on_chunk_unload: true
+    whitewalkers:
+      type: ZOMBIE
+      identifier: White Walker
+      name: §1White §1Walker 
+      spawn_chance: 0.2
+      amount: 2
+      maximum_light_level: 7
+      despawn_on_chunk_unload: true
+      equipment:
+        sword:
+          material: IRON_SWORD
+          enchants:
+           P2:
+             enchant: DAMAGE_ALL
+             level: 1
+        ironchest:
+           material: IRON_CHESTPLATE
+           enchants:
+             Prot2:
+               enchant: PROTECTION_ENVIRONMENTAL
+               level: 2
+      buffs:
+        fireres:
+               type: FIRE_RESISTANCE
+               level: 1
+      on_hit_debuffs:
+        coldtouch:
+               type: SLOW
+               level: 1
+               duration: 5s
+               chance: 1
+      on_hit_message: Your body feels colder
+      blocks_to_spawn_on:
+         - SNOW
+         - GRASS
+         - DIRT
+      blocks_to_spawn_in:
+         - SNOW
+         - AIR
+    skeletons:
+      type: SKELETON
+      spawn_chance: 0.1
+      identifier: skeleton
+      maximum_light_level: 7
+      despawn_on_chunk_unload: true
+    spiders:
+      type: SPIDER 
+      spawn_chance: 0.0666
+      identifier: spiders
+      maximum_light_level: 7
+      despawn_on_chunk_unload: true
+    icespiders:
+      type: SPIDER 
+      spawn_chance: 0.2
+      identifier: icespiders
+      maximum_light_level: 7
+      despawn_on_chunk_unload: true
+      name: §1Ice §1Spider
+      on_hit_debuffs:
+         coldtouch:
+           type: SLOW
+           level: 1
+           duration: 5s
+           chance: 1
+      on_hit_message: Your body feels colder
+    creepers:
+      type: CREEPER 
+      spawn_chance: 0.0222
+      identifier: creeper
+      maximum_light_level: 7
+      despawn_on_chunk_unload: true
+    witches:
+      type: WITCH
+      spawn_chance: 0.0666
+      identifier: witch
+      maximum_light_level: 7
+      despawn_on_chunk_unload: true
+    enderman:
+      type: ENDERMAN
+      spawn_chance: 0.0111
+      identifier: enderman
+      maximum_light_level: 7
+      despawn_on_chunk_unload: true
+    chicken:
+      type: CHICKEN
+      spawn_chance: 0.1
+      identifier: chicken
+      minimum_light_level: 8
+    pig:
+      type: PIG
+      spawn_chance: 0.1
+      identifier: pig
+      minimum_light_level: 8
+    sheep:
+      type: SHEEP
+      spawn_chance: 0.05
+      identifier: sheep
+      minimum_light_level: 8
+        
+ ocean:
+  updatetime: 15s
+  areas:
+    biomes:
+     - HELL
+  mobconfig:
+    blaze:
+      type: BLAZE
+      spawn_chance: 0.05
+      identifier: blazes
+      despawn_on_chunk_unload: true
+    pigman:
+      type: PIG_ZOMBIE
+      spawn_chance: 0.2
+      identifier: pigman
+      despawn_on_chunk_unload: true
+      equipment:
+        sword:
+          material: GOLD_SWORD
+          enchants:
+              burning:
+                  enchant: FIRE_ASPECT
+                  level: 1
+    ghast:
+      type: GHAST
+      spawn_chance: 0.05
+      identifier: ghast
+      despawn_on_chunk_unload: true
+    witherskeletons:
+      type: SKELETON
+      spawn_chance: 0.1
+      identifier: witherskeleton
+      name: §8Big §8Bones
+      alternative_version: true
+      despawn_on_chunk_unload: true
+      maximum_light_level: 11
+      drops:
+       firebones:
+        material: BONE
+        amount: 1
+        lore: Ouch! That is Hot!
+        enchants:
+         F1:
+          enchant: FIRE_ASPECT
+          level: 1
+      equipment:
+        ironboots:
+           material: IRON_BOOTS
+           enchants:
+             Prot2:
+               enchant: PROTECTION_ENVIRONMENTAL
+               level: 2
+        ironchest:
+           material: IRON_LEGGINGS
+           enchants:
+             Prot2:
+               enchant: PROTECTION_ENVIRONMENTAL
+               level: 2
+        ironhelm:
+           material: IRON_HELMET 
+           enchants:
+             Prot2:
+               enchant: PROTECTION_ENVIRONMENTAL
+               level: 2
+        sword:
+          material: IRON_SWORD
+          enchants:
+           burning:
+             enchant: FIRE_ASPECT
+             level: 1
+           S2:
+             enchant: DAMAGE_ALL
+             level: 2
+        ironchest:
+           material: IRON_CHESTPLATE
+           enchants:
+             Prot2:
+               enchant: PROTECTION_ENVIRONMENTAL
+               level: 2
+      buffs:
+        fireres:
+               type: FIRE_RESISTANCE
+               level: 1
+      on_hit_debuffs:
+        burningtouch:
+               type: WEAKNESS
+               level: 1
+               duration: 5s
+               chance: 1
+      on_hit_message: Your body burns
+      blocks_to_spawn_on:
+         - NETHERRACK
+         - OBSIDIAN
+         - STATIONARY_LAVA
+    magmacube:
+      type: MAGMA_CUBE
+      spawn_chance: 0.05
+      identifier: magmacube
+      despawn_on_chunk_unload: true
+    dangedspirit:
+      type: ZOMBIE
+      spawn_chance: 0.1
+      identifier: dangedspirit
+      name: §dSuccubus
+      despawn_on_chunk_unload: true
+      maximum_light_level: 15
+      drops:
+       Cane:
+        material: SUGAR_CANE 
+        amount: 4
+      buffs:
+        fireres:
+               type: FIRE_RESISTANCE
+               level: 1
+        res:
+               type: RESISTANCE
+               level: 1
+      on_hit_debuffs:
+        burningtouch:
+               type: WEAKNESS
+               level: 2
+               duration: 5s
+               chance: 1
+      on_hit_message: Your strength is very tasty
+      blocks_to_spawn_on:
+         - NETHERRACK
+         - OBSIDIAN
+         - STATIONARY_LAVA
+      health: 100

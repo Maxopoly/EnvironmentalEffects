@@ -37,10 +37,9 @@ public class WrathOfTheGods extends AbstractCommand {
 		}
 		LinkedList<Area> areas = new LinkedList<Area>();
 		areas.add(global);
-		WeatherMachine wm = new WeatherMachine(plugin, areas, 1D, 3600000L,
-				200L);
-		FireBallRain fbr = new FireBallRain(plugin, areas, 200L, 32, null);
-		LightningControl lc = new LightningControl(plugin, areas, 300L, null,
+		WeatherMachine wm = new WeatherMachine(areas, null, 1D, 3600000L, 200L);
+		FireBallRain fbr = new FireBallRain(areas, null, 200L, 32, null);
+		LightningControl lc = new LightningControl(areas, null, 300L, null,
 				true, 64);
 		sender.sendMessage("MAXIMUM DESTRUCTION ACTIVATED");
 		return true;

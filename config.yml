@@ -68,6 +68,10 @@
 #GLOBAL simply means the effect will be applied to every player on the map, dont combine global with any other area descriptions,
 #it will lead to exception. To use global, simply put "GLOBAL" into the biomes list.
 
+#Additionally for all geometric shapes (ring, circle, rectangle) it is possible to limit the area to specific y-levels by 
+#specifying maximum_y and minimum_y. Both values are inclusive and will default to 0 and 255 if not specified (which makes 
+#every area effect the whole y-range by default). For an example on how to use those options see below.
+
 #Here are some examples for valid area configurations:
 
 #A global effect:
@@ -89,6 +93,8 @@
 #   locations:
 #       exampleName1:
 #           shape: CIRCLE
+#           minimum_y: 30
+#           maximum_y: 50
 #           xsize: 30
 #           center:
 #               x: 1000
@@ -121,7 +127,21 @@
 #           center:
 #               x: 1337
 #               z: 1337
-    
+   
+#Additionally to specifying areas for effects to apply in, you can also exclude specific areas from an effect. An exclusion will
+#always override an inclusion. Adding the option excluded_areas is possible for every effect except for reinforcement decay.
+#The semantic is identical with the one for including areas, an example:
+
+#areas:
+#   biomes:
+#    - GLOBAL
+#excluded_areas:
+#   biomes:
+#    - OCEAN
+
+#This effect will apply everywhere except in oceans. You can combine any possible descriptons for areas in any way you want here,
+#for example specific regions specified by coordinates could also be excluded here. The option excluded_areas will always be on
+#the same level as the areas option in the config of any given effect.
 
 #Some effects also allow you to specify specific environmental conditions for the player, which have to be fulfilled so the
 #effect is applied. Only some allow this and if it is allowed the example next to the config section will show it. An example:
@@ -181,13 +201,13 @@ timeupdate: 200
 #Keeps fireballs from dealing terrain damage if set to true. This might be needed if the fireballl rain is heavily used
 #to prevent the whole world being destroyed slowly. But then again this makes the effect very boring, because it makes it 
 #almost invisble
-disable_fireball_terraindamage: true
+disable_fireball_terraindamage: false
 
 #Keeps fireballs from igniting terrain if set to true
-disable_fireball_terrainignition: true
+disable_fireball_terrainignition: false
 
 #Completly disables passive fire spread if set to true. Player can still ignite individual blocks if this is enabled
-firespread_disabled: true
+firespread_disabled: false
 
 #Enable this if you want to cancel any vanilla random spawning. This will not cancel any spawning done by any plugin and
 #will not prevent all other spawn causes like reinforcements, breeding, lightning etc.
@@ -230,6 +250,8 @@ weathermachines:
 #           biomes:
 #            - GLOBAL
 
+daytime_modifier:
+
 #The starting time is the set time whenever the server is started or the plugin is reloaded. A detailied explaination 
 #of ingame time can be found here: http://minecraft.gamepedia.com/Day-night_cycle#Conversions
 
@@ -240,8 +262,6 @@ weathermachines:
 #get removed completly, if it's not set the same value as for days will be used for nights
 
 #Values higher than 1.0 are possible to speed up the days, but too high values might lead to very weird behavior.
-
-daytime_modifier:
 
 
 #lightning effects allow you to create as much lightning around players as you want. An example config:
@@ -375,12 +395,14 @@ armour_based_damage:
 #           night: true
 #       mobconfig:
 #           OPskeletons:
+#               identifier: spooky
 #               type: SKELETON
 #               name: xX420QU1CKSC0P3R420Xx
 #               range: 64
 #               amount: 2
 #               maximum_spawn_attempts: 10
 #               deathmessage: Y you hardscope
+#               on_hit_message: MOM GET THE CAMERA
 #               spawn_chance: 0.5
 #               drops:
 #                   Special_IngredientXYZ:
@@ -413,11 +435,34 @@ armour_based_damage:
 #                       level: 1
 #                       duration: 5s
 #                       chance: 0.2  
+#               blocks_to_spawn_on:
+#                - STONE
+#                - DIRT
+#               blocks_to_spawn_in:
+#                - AIR
+#                - WATER
+#               minimum_light_level: 4
+#               maximum_light_level: 8
+#               alternative_version: true
+#               health: 100
+#               helmet_dropchance: 0.1
+#               chestplate_dropchance: 0.1
+#               leggins_dropchance: 0.1
+#               boots_dropchance: 0.1
+#               item_in_dropchance: 0.1
+#               despawn_on_chunk_unload: false
+#               can_pickup_items: true
+#               y_spawn_range: 48
 
 #First of all, just for like every other effect, you can have as many instances of this active as you want. 
 #The update time decides how often the plugins attempts to spawn mobs next to every player, this is the same 
 #for all mobs spawned by this instance. Each instance also has as many mobconfigs as wanted (at least 1),
 #those have their own identifers and completly describe the monster which should be spawned.
+
+#identifier is used to identify mob created by a specific config even after a restart. You can change all
+#other values, but as long as the identifier stays the same it will also be applied retroactively to already
+#spawned mobs. NEVER EVER USE DUPLICATE IDENTIFIERS. NEVER EVER. It will crash and burn, you are free to use
+#any string, but ensure that there are never any duplicates
 
 #In a mobconfig, type describes which type of monster should be spawned. Use entity identifiers for that, 
 #a full list can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/EntityType.html
@@ -441,6 +486,9 @@ armour_based_damage:
 #deathmessage is the message that is sent to the player who kills the monster. If this option is removed or left empty, 
 #no message will be sent.
 
+#on_hit_message allows you to specify a message, which is sent to a player whenever he is hit by the mob.
+#Remove this option or leave it empty if no message should be sent.
+
 #spawn_chance is the chance to even spawn something every updatetime. This is a double, where 1.0 means it should always
 #try to spawn and 0.0 means it should never try to spawn. This chance does not take into account that there might be no 
 #location for the monster to spawn in and that the spawning could fail because of that.
@@ -463,6 +511,49 @@ armour_based_damage:
 #a player. If the duration is not set, it will default to 5 seconds and if the chance is not set, it will default to 1.0. 
 #Chance is a double, where 1.0 is 100 % and 0.0 is 0%
 
+#blocks_to_spawn_on allows you to specify on which blocks this mob is allowed to spawn. If you remove this option, the mob will
+#be able to spawn on any block. Simply list the material of the acceptable blocks here, use spigots enum identifers.
+
+#blocks_not_to_spawn_on is not in the example above, but it gives you exactly the opposite of options than blocks_to_spawn_on.
+#Like for the option above, this works by simply listing materials. If you specify this option, it will be assumed that the 
+#mob isn't allowed to spawn on any blocks other than the ones specified in this list. Only either specify which blocks to 
+#spawn on or which blocks not to spawn on, doing both makes absolutely no sense.
+
+#blocks_to_spawn_in allows you to give a list of blocks in which the mob is allowed to spawn. If this option is not given, the mob
+#will only spawn inside air, but this option can be used to for example specify water as valid spawning room. If you do use this
+#option, you will have to explicitly add air, if you want it to be a block to spawn in.
+
+#maximum_light_level lets you specify the maximum light level at which this mob will spawn. The block with the block coords of 
+#the spawn is the one on which the light check is performed on (in the case of 2 block high mobs thats the feet block), this
+#value is inclusive and if it is not specified it will default to 15, which means nothing will be prevented because of too much 
+#light (15 is the maximum possible)
+
+#minimum_light_level works just like maximum_light_level, but instead allows you to specify a minimum required light level for
+#a mob to spawn. Range for this is 0-15 and this will default to 0 if nothing is specified
+
+#alternative_version is a bool that allows you to specify whether you want to spawn a special version of a monster. Set this to 
+#true for skeletons to spawn wither skeletons or for creepers to spawn charged creepers. For all other mob types this option 
+#can be removed and it will be ignored if its set anyway
+
+#health allows you to modify the maximum health of the mob. Note that 2 health equal one heart in minecraft and that if this option
+#is not specified, it will default to the normal health of the mob type specified
+
+#helmet_dropchance is the chance for the mob to drop it's helmet when dying, default is 0.0
+
+#chestplate_dropchance is the chance for the mob to drop it's chestplate when dying, default is 0.0
+
+#leggins_dropchance is the chance for the mob to drop it's leggins when dying, default is 0.0
+
+#boots_dropchance is the chance for the mob to drop it's boots when dying, default is 0.0
+
+#item_in_dropchance is the chance for the mob to drop it's holding it it's hand when dying, default is 0.0
+
+#despawn_on_chunk_unload is a bool to specify whether the mob will despawn when the chunk it's in is unloaded, default is true
+
+#can_pickup_items is a bool to specify whether the mob can pickup items, default is false
+
+#y_spawn_range specifies how far above or below the player the mob may spawn at a maximum. Default for this value is 32
+
 #General advice on the balancing of mobs: If you want to spawn monster during the day, give them fire res. Skeletons wont spawn
 #with a bow unless you give them one and strength does not apply to arrows, work with power enchants on the bow instead. Also
 #giving monsters utility instead of flat out damage is usually better.
@@ -470,12 +561,23 @@ armour_based_damage:
 monster:
 
 
-#The spawner config part allows you to replace mobs spawned by mob spawners with custom mobs. An example config could look like this:
+#The spawner config part allows you to replace mobs spawned by mob spawners in specific areas with custom mobs. An example 
+#config could look like this:
 
 #spawner:
 #  skeletons:
-#    spawn: SKELETON
-#    mobconfig:
+#    areas:
+#         locations:
+#             ble:
+#                   shape: CIRCLE
+#                   xsize: 50
+#                   center:
+#                       x: 1000
+#                       z: 2000
+#    mobs:
+#       spooky:
+#               identifier: spookyskeleton
+#               spawn: SKELETON
 #               type: SKELETON
 #               name: xX420QU1CKSC0P3R420Xx
 #               range: 64
@@ -515,10 +617,12 @@ monster:
 #                       duration: 5s
 #                       chance: 0.2 
 
-#spawn specifies which type of mob should be replace if it spawns from spawners, use spigot identifiers here. A full list
+#Under mobs you can add an option for as many entities as you want.
+
+#spawn specifies which type of mob should be replaced if it spawns from spawners, use spigot identifiers here. A full list
 #of those can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/EntityType.html
 
-#mobconfig simply asks you to specify a mob config the same way it needs to be done for the random based mob spawning,
+#Everything else in the given option is used to specify a mob config the same way it needs to be done for the random based mob spawning,
 #look there for detailed explaination of the specific options
 
 spawner:
@@ -546,12 +650,13 @@ spawner:
 #subtitle is the subtitle of the title sent to the player 
 
 #fadein is how long the title should take to fade in, stay is how long it stays on the screen and fadeout
-#is how long it takes to fade out of the players screen
+#is how long it takes to fade out of the players screen, default is one second for each of them
 
 #updatetime is how often the effect checks whether the player is in the area currently and whether a message 
 #should be sent
 
 title:
+
 
 #The dispenser section allows you to buff dispensers to deal more damage and apply debuffs. An example config:
 
@@ -588,11 +693,11 @@ dispenser:
 #reinforcement_decay:
 #   worldborderdecay:
 #       amount: 25
+#       updatetime: 2d
 #       areas:
 #           locations:
 #               worldborder:
 #                   shape: RING
-#                   updatetime: 2d
 #                   inner_radius: 14900
 #                   outer_radius: 15020
 #                   center:
@@ -609,3 +714,39 @@ dispenser:
 #this more often though.
 
 reinforcement_decay:
+
+
+#Block prevention allows you to prevent block breaks, bucket use, block ignitions and block placements, similar to worldguard
+#An example config:
+
+#block_prevention:
+#   youshallnotdostuffatnighthere:
+#       areas:
+#           locations:
+#               holy:
+#                   shape: CIRCLE
+#                   xsize: 50
+#                   center:
+#                       x: 1000
+#                       z: 2000
+#       player_environment_state:
+#           night: true  
+#       preventPlacing: true
+#       preventBreaking: true
+#       preventBuckets: true
+#       preventIgnitions: true
+#       preventPearls: true
+
+#All of the booleans set for this effect are optional, if they are not set they will default to false
+
+#preventPlacing disallows placing blocks in the area if it's set to true                
+
+#preventBreaking disallows breaking blocks in the area if it's set to true    
+
+#preventBuckets disallows the use of buckets in the area if it's set to true    
+
+#preventIgnitions disallows player caused block ignitions in the area if it's set to true        
+
+#preventPearls prevents pearling from and into the specified area
+
+block_prevention:    

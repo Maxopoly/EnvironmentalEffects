@@ -1,0 +1,211 @@
+worldname: Aleph
+firespread_disabled: true
+cancel_natural_spawns: true
+
+weathermachines:
+  global:
+    rain_chance: 0.5
+    minimum_rain_duration: 3h
+    areas:
+      biomes:
+       - GLOBAL
+daytime_modifier:
+  global:
+    dayspeed: 0.33
+    starting_time: 0
+    areas:
+      biomes:
+       - GLOBAL
+
+monster:
+ plainssection:
+  updatetime: 15s
+  areas:
+    biomes:
+     - PLAINS
+     - BEACH
+  mobconfig:
+   zombies:
+     type: ZOMBIE
+     spawn_chance: 0.0666
+     identifier: zombie
+     maximum_light_level: 7
+   skeletons:
+     type: SKELETON
+     spawn_chance: 0.0666
+     identifier: skeleton
+     maximum_light_level: 7
+   spiders:
+     type: SPIDER 
+     spawn_chance: 0.0666
+     identifier: spiders
+     maximum_light_level: 7
+   creepers:
+     type: CREEPER 
+     spawn_chance: 0.0222
+     identifier: creeper
+     maximum_light_level: 7
+   witches:
+     type: WITCH
+     spawn_chance: 0.0666
+     identifier: witch
+     maximum_light_level: 7
+   enderman:
+     type: ENDERMAN
+     spawn_chance: 0.0111
+     identifier: enderman
+     maximum_light_level: 7
+   chicken:
+     type: CHICKEN
+     spawn_chance: 0.2
+     identifier: chicken
+     minimum_light_level: 8
+     blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+   cow:
+     type: COW
+     spawn_chance: 0.05
+     identifier: cow
+     minimum_light_level: 8
+     blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+   horse:
+     type: HORSE
+     spawn_chance: 0.01
+     identifier: horse
+     minimum_light_level: 8
+     blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+   pig:
+     type: PIG
+     spawn_chance: 0.05
+     identifier: pig
+     minimum_light_level: 8
+     blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+   rabbit:
+     type: RABBIT
+     spawn_chance: 0.02
+     identifier: rabbit
+     minimum_light_level: 8
+     blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+   sheep:
+     type: SHEEP
+     spawn_chance: 0.03
+     identifier: sheep
+     minimum_light_level: 8
+     blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+ riversection:
+  updatetime: 10s
+  areas:
+    biomes:
+     - RIVER
+  mobconfig:
+   squid:
+     type: SQUID
+     spawn_chance: 0.2
+     identifier: squid
+     blocks_to_spawn_in:
+      - WATER
+      - STATIONARY_WATER
+ BirchForest:
+  updatetime: 1m
+  areas:
+    biomes:
+     - BIRCH_FOREST
+     - BIRCH_FOREST_HILLS
+  mobconfig:
+   OPskeletons:
+     identifier: firewatchskelly
+     type: SKELETON
+     name: §kFive §4RabidFireWatch §kFive 
+     on_hit_message: YOU KILLED MY BIRCH. YOU BETTER RUN
+     spawn_chance: 0.44
+     drops:
+      PowBone:
+       material: BONE
+       amount: 6
+       lore: Pow wow
+       enchants:
+        KB1:
+         enchant: KNOCKBACK
+         level: 1
+     equipment:
+      BluntHotRod:
+       material: BLAZE_ROD
+       enchants:
+        KB8:
+         enchant: KNOCKBACK
+         level: 8
+        S2:
+         enchant: DAMAGE_ALL
+         level: 2
+      firechest451:
+       material: LEATHER_CHESTPLATE
+       enchants:
+        Prot451:
+         enchant: PROTECTION_FIRE
+         level: 451
+      firelegs451:
+       material: LEATHER_LEGGINGS
+       enchants:
+        Prot451:
+         enchant: PROTECTION_FIRE
+         level: 451
+      fireBoots154:
+       material: LEATHER_BOOTS
+       enchants:
+        FeatherFall4:
+         enchant: PROTECTION_FALL
+         level: 4
+        Prot451:
+         enchant: PROTECTION_FIRE
+         level: 451
+# Skeleton's cannot wear glass. Put a leather helmet on instead
+      exglasshelm:
+       material: LEATHER_HELMET
+       enchants:
+        Prot451:
+         enchant: PROTECTION_FIRE
+         level: 451
+     buffs:
+      CantDrown:
+       type: WATER_BREATHING
+       level: 2
+      Fast1:
+       type: SPEED
+       level: 1
+     on_hit_debuffs:
+      RunForestRun:
+       type: SPEED
+       level: 1
+       duration: 1s
+      blinded:
+       type: BLINDNESS
+       level: 1
+       duration: 1s
+      withered:
+       type: WITHER
+       level: 1
+       duration: 2s
+     blocks_to_spawn_on:
+      - STONE
+      - DIRT
+      - GRASS
+      - STATIONARY_LAVA
+      - STATIONARY_WATER 
+     blocks_to_spawn_in:
+      - AIR
+      - STATIONARY_LAVA
+      - STATIONARY_WATER 
+     health: 320
+     despawn_on_chunk_unload: true
+     y_spawn_range: 16

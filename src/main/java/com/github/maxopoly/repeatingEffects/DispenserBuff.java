@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 
 import com.github.maxopoly.datarepresentations.Area;
@@ -15,10 +14,10 @@ public class DispenserBuff extends RepeatingEffect {
 	private int extraDamage;
 	private boolean infiniteArrows;
 
-	public DispenserBuff(JavaPlugin plugin, LinkedList<Area> areas,
-			int extraDamage, HashMap<PotionEffect, Double> onHitDebuffs,
-			boolean infiniteArrows) {
-		super(plugin, areas, 24 * 60 * 60 * 30, null);
+	public DispenserBuff(LinkedList<Area> includedAreas,
+			LinkedList<Area> excludedAreas, int extraDamage,
+			HashMap<PotionEffect, Double> onHitDebuffs, boolean infiniteArrows) {
+		super(includedAreas, excludedAreas, 24 * 60 * 60 * 30, null);
 		this.onHitDebuffs = onHitDebuffs;
 		this.extraDamage = extraDamage;
 		this.infiniteArrows = infiniteArrows;
@@ -39,11 +38,11 @@ public class DispenserBuff extends RepeatingEffect {
 	public HashMap<PotionEffect, Double> getDebuffs() {
 		return onHitDebuffs;
 	}
-	
+
 	public boolean getInfiniteArrow() {
 		return infiniteArrows;
 	}
-	
+
 	public int getExtraDamage() {
 		return extraDamage;
 	}

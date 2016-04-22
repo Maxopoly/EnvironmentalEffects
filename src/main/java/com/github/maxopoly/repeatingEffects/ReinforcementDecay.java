@@ -4,11 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import com.github.maxopoly.datarepresentations.Area;
 
@@ -26,9 +22,9 @@ import vg.civcraft.mc.citadel.reinforcement.Reinforcement;
 public class ReinforcementDecay extends RepeatingEffect {
 	int reinforcementBreakPerRun;
 
-	public ReinforcementDecay(JavaPlugin plugin, LinkedList<Area> areas,
-			long updateTime, int reinforcementBreakPerRun) {
-		super(plugin, areas, updateTime, null);
+	public ReinforcementDecay(LinkedList<Area> includedAreas, long updateTime,
+			int reinforcementBreakPerRun) {
+		super(includedAreas, null, updateTime, null);
 		this.reinforcementBreakPerRun = reinforcementBreakPerRun;
 	}
 
@@ -44,7 +40,7 @@ public class ReinforcementDecay extends RepeatingEffect {
 	 */
 	public void run() {
 		ReinforcementManager rm = Citadel.getReinforcementManager();
-		for (Area a : areas) {
+		for (Area a : includedAreas) {
 			LinkedList<Chunk> chunks = a.getChunks();
 			for (Chunk c : chunks) {
 				List<Reinforcement> reins = rm.getReinforcementsByChunk(c);

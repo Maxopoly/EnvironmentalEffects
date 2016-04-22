@@ -3,7 +3,6 @@ package com.github.maxopoly.repeatingEffects;
 import java.util.LinkedList;
 
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import com.github.maxopoly.datarepresentations.Area;
 import com.github.maxopoly.datarepresentations.ArmourState;
@@ -14,10 +13,11 @@ public class ArmourBasedDamage extends RepeatingEffect {
 	String dmgMsg;
 	int dmgAmount;
 
-	public ArmourBasedDamage(JavaPlugin plugin, LinkedList<Area> areas,
-			long updatetime, PlayerEnvironmentState pes, ArmourState as,
-			String dmgMsg, int dmgAmount) {
-		super(plugin, areas, updatetime, pes);
+	public ArmourBasedDamage(LinkedList<Area> includedAreas,
+			LinkedList<Area> excludedAreas, long updatetime,
+			PlayerEnvironmentState pes, ArmourState as, String dmgMsg,
+			int dmgAmount) {
+		super(includedAreas, excludedAreas, updatetime, pes);
 		this.as = as;
 		this.dmgAmount = dmgAmount;
 		this.dmgMsg = dmgMsg;

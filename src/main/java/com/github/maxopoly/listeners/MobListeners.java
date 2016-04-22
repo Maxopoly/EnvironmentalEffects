@@ -13,18 +13,15 @@ import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.projectiles.BlockProjectileSource;
@@ -37,12 +34,10 @@ import com.github.maxopoly.repeatingEffects.RandomMobSpawningHandler;
 
 public class MobListeners implements Listener {
 	private Random rng;
-	private HashMap<EntityType, MobConfig> spawnerConfig;
 	private boolean cancelAllOther;
 
-	public MobListeners(HashMap<EntityType, MobConfig> spawnerConfig, boolean cancelAllOther) {
+	public MobListeners(boolean cancelAllOther) {
 		rng = new Random();
-		this.spawnerConfig = spawnerConfig;
 		this.cancelAllOther = cancelAllOther;
 	}
 
@@ -50,7 +45,7 @@ public class MobListeners implements Listener {
 	public void monsterSpawn(CreatureSpawnEvent e) {
 		if (cancelAllOther
 				&& e.getSpawnReason() == SpawnReason.NATURAL
-				&& e.getEntity() instanceof Monster) {
+				&& e.getEntity() instanceof LivingEntity) {
 			e.setCancelled(true);
 		}
 
@@ -61,15 +56,15 @@ public class MobListeners implements Listener {
 		if (e.getEntityType() != EntityType.PLAYER) {
 			return;
 		}
-		Monster damager = null;
-		if (e.getDamager() instanceof Monster) {
-			damager = (Monster) e.getDamager();
+		Entity damager = null;
+		if (e.getDamager() instanceof LivingEntity) {
+			damager = (LivingEntity) e.getDamager();
 		} else {
 			if (e.getDamager() instanceof Projectile) {
 				ProjectileSource ps = ((Projectile) e.getDamager())
 						.getShooter();
-				if (ps instanceof Monster) {
-					damager = (Monster) ps;
+				if (ps instanceof LivingEntity) {
+					damager = (LivingEntity) ps;
 				} else {
 					return;
 				}
@@ -96,39 +91,21 @@ public class MobListeners implements Listener {
 	public void monsterDeath(EntityDeathEvent e) {
 		Entity en = e.getEntity();
 		MobConfig config;
-		if (en instanceof Monster
-				&& (config = RandomMobSpawningHandler.getConfig((Monster) en)) != null) {
-			RandomMobSpawningHandler.removeMonster((Monster) en);
+		if (en instanceof LivingEntity
+				&& (config = RandomMobSpawningHandler.getConfig(en)) != null) {
+			RandomMobSpawningHandler.removeEntity(en);
 			if (((LivingEntity) en).getKiller() instanceof Player) {
 				String deathMsg = config.getDeathMessage();
 				if (deathMsg != null && !deathMsg.equals("")) {
 					((LivingEntity) en).getKiller().sendMessage(deathMsg);
 				}
-
-				List<ItemStack> drops = e.getDrops();
-				drops.clear();
 				LinkedList<ItemStack> dropsToInsert = config.getDrops();
 				if (dropsToInsert != null) {
+					List<ItemStack> drops = e.getDrops();
+					drops.clear();
 					for (ItemStack is : dropsToInsert) {
 						drops.add(is);
 					}
-				}
-			}
-		}
-	}
-
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void spawnerSpawn(SpawnerSpawnEvent e) {
-		if (spawnerConfig == null) {
-			return;
-		}
-		MobConfig mc = spawnerConfig.get(e.getEntityType());
-		if (mc != null) {
-			e.setCancelled(true);
-			LinkedList<Monster> spawned = mc.createMobAt(e.getLocation());
-			if (spawned != null) {
-				for (Monster m : spawned) {
-					RandomMobSpawningHandler.addMonster(m, mc);
 				}
 			}
 		}

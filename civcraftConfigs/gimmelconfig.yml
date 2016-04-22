@@ -1,0 +1,368 @@
+worldname: Gimmel
+cancel_natural_spawns: true
+
+weathermachines:
+  global:
+    rain_chance: 0.2
+    minimum_rain_duration: 3h
+    areas:
+      biomes:
+       - PLAINS
+  desert:
+    rain_chance: 0.0
+    minimum_rain_duration: 3h
+    areas:
+      biomes:
+       - DESERT
+ 
+daytime_modifier:
+  global:
+    dayspeed: 0.33
+    starting_time: 0
+    areas:
+      biomes:
+       - GLOBAL
+
+monster:
+ normalsection:
+  updatetime: 15s
+  areas:
+    biomes:
+     - PLAINS
+  mobconfig:
+   zombies:
+     type: ZOMBIE
+     spawn_chance: 0.0666     
+     identifier: zombie
+     maximum_light_level: 7
+   skeletons:
+     type: SKELETON
+     spawn_chance: 0.0666
+     identifier: skeleton
+     maximum_light_level: 7
+   GlassSkulls:
+     type: SKELETON
+     identifier: skeletonFast
+     spawn_chance: 0.1
+     health: 12
+     maximum_light_level: 4
+     item_in_dropchance: 0.2
+     despawn_on_chunk_unload: false
+     y_spawn_range: 16
+     drops:
+      Bone:
+       material: BONE
+       amount: 2
+     equipment:
+      sharpBone:
+       material: BONE
+       enchants:
+        S1:
+         enchant: DAMAGE_ALL
+         level: 1
+      ArrowChainChest3:
+       material: CHAINMAIL_CHESTPLATE
+       enchants:
+        Arrow2:
+         enchant: PROTECTION_PROJECTILE
+         level: 3
+     buffs:
+       CantDrown:
+        type: WATER_BREATHING
+        level: 2
+       FastBone:
+        type: SPEED
+        level: 2
+     on_hit_debuffs:
+      anthrax:
+       type: POISON
+       level: 2
+       duration: 5s
+   spiders:
+     type: SPIDER 
+     spawn_chance: 0.0666
+     identifier: spiders
+     maximum_light_level: 7
+   creepers:
+     type: CREEPER 
+     spawn_chance: 0.0222
+     identifier: creeper
+     maximum_light_level: 7
+   witches:
+     type: WITCH
+     spawn_chance: 0.0666
+     identifier: witch
+     maximum_light_level: 7
+   enderman:
+     type: ENDERMAN
+     spawn_chance: 0.0111
+     identifier: enderman
+     maximum_light_level: 7
+   chicken:
+     type: CHICKEN
+     spawn_chance: 0.05
+     identifier: chicken
+     minimum_light_level: 8
+     blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+   cow:
+     type: COW
+     spawn_chance: 0.05
+     identifier: cow
+     minimum_light_level: 8
+     blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+   horse:
+     type: HORSE
+     spawn_chance: 0.01
+     identifier: horse
+     minimum_light_level: 8
+     blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+   pig:
+     type: PIG
+     spawn_chance: 0.05
+     identifier: pig
+     minimum_light_level: 8
+     blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+   rabbit:
+     type: RABBIT
+     spawn_chance: 0.03
+     identifier: rabbit
+     minimum_light_level: 8
+     blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+   sheep:
+     type: SHEEP
+     spawn_chance: 0.04
+     identifier: sheep
+     minimum_light_level: 8
+     blocks_to_spawn_on:
+      - DIRT
+      - GRASS     
+   squid:
+     type: SQUID
+     spawn_chance: 0.33
+     identifier: squid
+     blocks_to_spawn_in:
+      - WATER
+      - STATIONARY_WATER
+   dirtyspider:
+     identifier: dirtyspider
+     type: CAVE_SPIDER
+     name: Dirty Spider
+     on_hit_message: Cant Catch Me
+     spawn_chance: 0.01
+     drops:
+      String:
+       material: STRING 
+       amount: 16
+       chance: 1
+      spidereyes:
+       material: SPIDER_EYE 
+       amount: 8
+       chance: 1
+      fermspidereyes:
+       material: FERMENTED_SPIDER_EYE  
+       amount: 4
+       chance: 0.3
+     buffs:
+      Fast2:
+       type: SPEED
+       level: 2
+     on_hit_debuffs:
+      poison:
+       type: POISON
+       level: 1
+       duration: 10s
+      blinded:
+       type: BLINDNESS
+       level: 1
+       duration: 5s
+      Slowness:
+       type: SLOW
+       level: 2
+       duration: 5s
+     blocks_to_spawn_on:
+      - STONE
+      - DIRT
+      - GRASS
+      - STATIONARY_LAVA
+      - STATIONARY_WATER 
+     blocks_to_spawn_in:
+      - AIR
+      - STATIONARY_LAVA
+      - STATIONARY_WATER 
+     health: 100
+     despawn_on_chunk_unload: true
+     can_pickup_items: false
+     y_spawn_range: 16
+   darkzombiearcher:
+     identifier: undeadarcher
+     type: ZOMBIE
+     name: Dark Archer
+     on_hit_message:  "**Zombie** **Snarls** **Crunch** **Rawr**"
+     spawn_chance: 0.05
+     drops:
+      Flesh:
+       material: ROTTEN_FLESH
+       amount: 8
+       chance: 1
+      zquiver:
+       material: ARROW
+       amount: 8
+       chance: 1
+       lore: Zombie Quiver
+      pistonwithstickyblood:
+       material: PISTON_STICKY_BASE
+       amount: 1
+     equipment:
+      ZombieArrows:
+       material: BOW 
+       enchants:
+        Punch4:
+         enchant: ARROW_KNOCKBACK
+         level: 4
+        Fire1:
+         enchant: ARROW_FIRE
+         level: 1
+      chainchest2:
+       material: CHAINMAIL_CHESTPLATE
+       enchants:
+        Prot2:
+         enchant: PROTECTION_ENVIRONMENTAL
+         level: 2
+      chainlegs2:
+       material: CHAINMAIL_LEGGINGS
+       enchants:
+        Prot2:
+         enchant: PROTECTION_ENVIRONMENTAL
+         level: 2
+      chainboots2:
+       material: CHAINMAIL_BOOTS
+       enchants:
+        Prot2:
+         enchant: PROTECTION_ENVIRONMENTAL
+         level: 2
+      leatherhelm2:
+       material: CHAINMAIL_HELMET
+       enchants:
+        Prot2:
+         enchant: PROTECTION_ENVIRONMENTAL
+         level: 2
+     buffs:
+      Fast2:
+       type: SPEED
+       level: 2
+      Regen3:
+       type: REGENERATION
+       level: 3
+     on_hit_debuffs:
+      confusion:
+       type: CONFUSION
+       level: 1
+       duration: 10s
+      blinded:
+       type: BLINDNESS
+       level: 1
+       duration: 2s
+      nightv:
+       type: NIGHT_VISION
+       level: 1
+       duration: 30s
+     blocks_to_spawn_on:
+      - STONE
+      - DIRT
+      - GRASS
+      - STATIONARY_LAVA
+      - STATIONARY_WATER 
+     blocks_to_spawn_in:
+      - AIR
+      - STATIONARY_LAVA
+      - STATIONARY_WATER 
+     health: 40
+     despawn_on_chunk_unload: true
+     y_spawn_range: 16     
+
+ desertsection:
+  updatetime: 30s
+  areas:
+    biomes:
+     - DESERT
+  mobconfig:
+   skeletons:
+     type: SKELETON
+     spawn_chance: 0.05    
+     identifier: skeleton
+     maximum_light_level: 7
+   ozymandias:
+     type: SKELETON
+     name: Ozymandias
+     spawn_chance: 0.1     
+     identifier: ozymandias
+     maximum_light_level: 7
+     drops:
+            helmet:
+                   material: CHAINMAIL_HELMET
+                   enchants:
+                           Sharp:
+                               enchant: THORNS
+                               level: 3
+                               lore: Helmet of Ozymandias
+     buffs:
+      fireres:
+          type: FIRE_RESISTANCE
+          level: 1
+      armor:
+          type: DAMAGE_RESISTANCE
+          level: 1
+     on_hit_debuffs:
+           pain:
+             type: CONFUSION
+             level: 1
+             duration: 5s
+             chance: 0.5
+           weakness:
+             type: WEAKNESS
+             level: 1
+             duration: 7
+             chance: 0.5
+     equipment:
+           sword:
+             material: DIAMOND_SWORD
+             enchants:
+                   Sharp:
+                      enchant: DAMAGE_ALL
+                      level: 1
+     deathmessage: Look on my works, ye Mighty, and despair! Nothing beside remains.
+   creepers:
+     type: CREEPER 
+     spawn_chance: 0.0222
+     identifier: creeper
+     maximum_light_level: 7
+   solarcreepers:
+     type: CREEPER 
+     spawn_chance: 0.01
+     name: §2Solar §2Creeper
+     identifier: solarcreeper
+     maximum_light_level: 15
+     buffs:
+          speed2:
+               type: SPEED
+               level: 2
+     alternative_version: true
+   horse:
+     type: HORSE
+     spawn_chance: 0.01
+     identifier: horse
+     minimum_light_level: 8
+     blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+      - SAND

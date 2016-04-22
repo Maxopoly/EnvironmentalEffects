@@ -1,0 +1,271 @@
+worldname: Tet
+cancel_natural_spawns: true
+firespread_disabled: true
+
+weathermachines:
+  ocean:
+    rain_chance: 0.5
+    minimum_rain_duration: 3h
+    areas:
+      biomes:
+       - OCEAN
+       - DEEP_OCEAN
+  land:
+    rain_chance: 0.8
+    minimum_rain_duration: 6h
+    areas:
+      biomes:
+       - JUNGLE
+       - BEACH
+  volcano:
+    rain_chance: 0.0
+    minimum_rain_duration: 1d
+    areas:
+      biomes:
+       - JUNGLE_HILLS
+       
+daytime_modifier:
+  global:
+    dayspeed: 0.33
+    starting_time: 0
+    areas:
+      biomes:
+       - GLOBAL
+monster:
+ normalsection:
+  updatetime: 15s
+  areas:
+    biomes:
+     - JUNGLE
+     - BEACH
+  mobconfig:
+    zombies:
+      type: ZOMBIE
+      spawn_chance: 0.0666      
+      identifier: zombie
+      maximum_light_level: 7
+    skeletons:
+      type: SKELETON
+      spawn_chance: 0.0666
+      identifier: skeleton
+      maximum_light_level: 7
+    spiders:
+      type: SPIDER 
+      spawn_chance: 0.0666
+      identifier: spiders
+      maximum_light_level: 7
+    creepers:
+      type: CREEPER 
+      spawn_chance: 0.0222
+      identifier: creeper
+      maximum_light_level: 7
+    dropcreepers:
+      type: CREEPER 
+      spawn_chance: 0.01
+      name: Drop Creeper
+      identifier: dropcreeper
+      maximum_light_level: 15
+      blocks_to_spawn_on:
+      - LEAVES
+    witches:
+      type: WITCH
+      spawn_chance: 0.0666
+      identifier: witch
+      maximum_light_level: 7
+    enderman:
+      type: ENDERMAN
+      spawn_chance: 0.0111
+      identifier: enderman
+      maximum_light_level: 7
+    chicken:
+      type: CHICKEN
+      spawn_chance: 0.2
+      identifier: chicken
+      minimum_light_level: 7
+      blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+      - SAND
+    horse:
+      type: HORSE
+      spawn_chance: 0.001
+      identifier: horse
+      minimum_light_level: 7
+      blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+      - SAND
+    pig:
+      type: PIG
+      spawn_chance: 0.05
+      identifier: pig
+      minimum_light_level: 7
+      blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+      - SAND
+    rabbit:
+      type: RABBIT
+      spawn_chance: 0.02
+      identifier: rabbit
+      minimum_light_level: 7
+      blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+    sheep:
+      type: SHEEP
+      spawn_chance: 0.04
+      identifier: sheep
+      minimum_light_level: 7
+      blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+    ocelots:
+      type: OCELOT
+      spawn_chance: 0.05
+      identifier: ocelot
+      minimum_light_level: 7
+    JungleSkelly:
+     identifier: jungleskelly
+     type: SKELETON
+     range: 80
+     name: §kFive §2JungleSkelly §kFive 
+     spawn_chance: 0.2
+     drops:
+      PowBone:
+       material: BONE
+       amount: 2
+       lore: Coco Knocker
+       enchants:
+        KB1:
+         enchant: KNOCKBACK
+         level: 1
+     equipment:
+      BluntHotRod:
+       material: BONE
+       enchants:
+        KB8:
+         enchant: KNOCKBACK
+         level: 8
+        S2:
+         enchant: DAMAGE_ALL
+         level: 2
+      firechest451:
+       material: LEATHER_CHESTPLATE
+       enchants:
+        Prot451:
+         enchant: PROTECTION_FIRE
+         level: 451
+      firelegs451:
+       material: LEATHER_LEGGINGS
+       enchants:
+        Prot451:
+         enchant: PROTECTION_FIRE
+         level: 451
+      fireBoots154:
+       material: LEATHER_BOOTS
+       enchants:
+        FeatherFall4:
+         enchant: PROTECTION_FALL
+         level: 3
+#No glass helms permitted. Leave it to be whatever helmet wanted.
+     buffs:
+      CantDrown:
+       type: WATER_BREATHING
+       level: 2
+      Fast1:
+       type: SPEED
+       level: 1
+     on_hit_debuffs:
+      RunForestRun:
+       type: SPEED
+       level: 1
+       duration: 1s
+       chance: 1.0 
+      blinded:
+       type: BLINDNESS
+       level: 1
+       duration: 1s
+       chance: 1.0 
+      withered:
+       type: WITHER
+       level: 1
+       duration: 2s
+       chance: 1.0 
+     blocks_to_spawn_on:
+      - STONE
+      - DIRT
+      - GRASS
+      - STATIONARY_LAVA
+      - STATIONARY_WATER 
+      - LEAVES
+      - LEAVES_2
+     blocks_to_spawn_in:
+      - AIR
+      - STATIONARY_LAVA
+      - STATIONARY_WATER 
+     health: 160
+     despawn_on_chunk_unload: true
+     y_spawn_range: 16
+
+ ocean:
+  updatetime: 10s
+  areas:
+    biomes:
+     - OCEAN
+     - DEEP_OCEAN
+  mobconfig:
+    squids:
+      type: SQUID
+      spawn_chance: 0.4
+      identifier: squid
+      blocks_to_spawn_in:
+       - WATER
+       - STATIONARY_WATER
+    squidder:
+      type: SQUID
+      spawn_chance: 0.04
+      identifier: squidder
+      name: Squidder
+      blocks_to_spawn_in:
+       - WATER
+       - STATIONARY_WATER
+    guardians:
+      type: GUARDIAN
+      spawn_chance: 0.5
+      identifier: guardians
+      blocks_to_spawn_in:
+       - WATER
+       - STATIONARY_WATER
+
+ volcanos:
+  updatetime: 5s
+  areas:
+    biomes:
+     - JUNGLE_HILLS
+  mobconfig:
+    blaze:
+      type: BLAZE
+      spawn_chance: 0.2
+      identifier: blazes
+    direblaze:
+      type: BLAZE
+      name: Dire Blaze
+      spawn_chance: 0.02
+      identifier: direblazes
+      buffs:
+            Renenseanse:
+                       type: RESISTANCE
+                       level: 1      
+    firespider:
+      type: SPIDER
+      name: Fire Spider
+      spawn_chance: 0.4
+      identifier: firespider
+      on_hit_message: STOP BOTTING AND FITE M8
+      on_hit_debuffs:
+            wither:
+                       type: WITHER
+                       level: 1
+                       duration: 3s
+                       chance: 0.5 

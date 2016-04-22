@@ -1,0 +1,221 @@
+worldname: Bet
+cancel_natural_spawns: true
+
+weathermachines:
+  outer:
+    rain_chance: 0.3
+    minimum_rain_duration: 3h
+    areas:
+      biomes:
+       - ROOFED_FOREST
+       - MEGA_SPRUCE_TAIGA
+       - ICE_PLAINS
+  lake:
+    rain_chance: 0.8
+    minimum_rain_duration: 6h
+    areas:
+      biomes:
+       - FROZEN_RIVER
+       - COLD_BEACH
+      
+daytime_modifier:
+  global:
+    dayspeed: 0.33
+    starting_time: 0
+    areas:
+      biomes:
+       - GLOBAL
+monster:
+ normalsection:
+  updatetime: 15s
+  areas:
+    biomes:
+     - ROOFED_FOREST
+     - MEGA_SPRUCE_TAIGA
+     - ICE_PLAINS
+  mobconfig:
+   skeletons:
+     type: SKELETON
+     spawn_chance: 0.0666     
+     identifier: skeleton
+     maximum_light_level: 7
+   zombies:
+     type: ZOMBIE
+     spawn_chance: 0.0666     
+     identifier: zombie
+     maximum_light_level: 7
+   spiders:
+     type: SPIDER 
+     spawn_chance: 0.0666
+     identifier: spiders
+     maximum_light_level: 7
+   icespiders:
+     type: SPIDER 
+     spawn_chance: 0.0444
+     identifier: icespiders
+     maximum_light_level: 7
+     name: Ice Spider
+     on_hit_message: Your body feels colder
+     on_hit_debuffs:
+       coldtouch:
+         type: SLOW
+         level: 1
+         duration: 5s
+   creepers:
+     type: CREEPER 
+     spawn_chance: 0.0222
+     identifier: creeper
+     maximum_light_level: 7
+   witches:
+     type: WITCH
+     spawn_chance: 0.0222
+     identifier: witch
+     maximum_light_level: 7
+   enderman:
+     type: ENDERMAN
+     spawn_chance: 0.0111
+     identifier: enderman
+     maximum_light_level: 7
+   chicken:
+     type: CHICKEN
+     spawn_chance: 0.05
+     identifier: chicken
+     minimum_light_level: 8
+     blocks_to_spawn_on:
+      - DIRT
+      - GRASS
+   sheep:
+     type: SHEEP
+     spawn_chance: 0.01
+     identifier: sheep
+     minimum_light_level: 8  
+     blocks_to_spawn_on:
+      - DIRT
+      - GRASS     
+ riversection:
+  updatetime: 1m
+  areas:
+    biomes:
+     - FROZEN_RIVER
+     - COLD_BEACH
+  mobconfig:
+   squid:
+     type: SQUID
+     spawn_chance: 0.1
+     identifier: squid
+     blocks_to_spawn_in:
+      - WATER
+      - STATIONARY_WATER
+   skeletons:
+     type: SKELETON
+     spawn_chance: 0.0666     
+     identifier: skeleton
+     maximum_light_level: 7
+   zombies:
+     type: ZOMBIE
+     spawn_chance: 0.0666     
+     identifier: zombie
+     maximum_light_level: 7
+   whitewalkers:
+      type: ZOMBIE
+      identifier: White Walker
+      name: White Walker 
+      spawn_chance: 0.0444
+      amount: 2
+      maximum_light_level: 7
+      equipment:
+           sword:
+              material: IRON_SWORD
+              enchants:
+                   P2:
+                    enchant: SWORD_DAMAGE
+                    level: 1
+           ironchest:
+              material: IRON_CHESTPLATE
+              enchants:
+                   Prot2:
+                    enchant: PROTECTION_ENVIRONMENTAL
+                    level: 2
+   spiders:
+     type: SPIDER 
+     spawn_chance: 0.0666
+     identifier: spiders
+     maximum_light_level: 7
+   creepers:
+     type: CREEPER 
+     spawn_chance: 0.0222
+     identifier: creeper
+     maximum_light_level: 7
+   witches:
+     type: WITCH
+     spawn_chance: 0.0222
+     identifier: witch
+     maximum_light_level: 7
+   enderman:
+     type: ENDERMAN
+     spawn_chance: 0.0111
+     identifier: enderman
+     maximum_light_level: 7
+ Iceplains:
+  updatetime: 1m
+  areas:
+    biomes:
+     - ROOFED_FOREST
+     - MEGA_SPRUCE_TAIGA
+     - ICE_PLAINS
+  mobconfig:
+    OPirongolem:
+     identifier: PowerGolem
+     type: IRON_GOLEM
+     name: Power Golem
+     on_hit_message: ATTACK MODE ACTIVATED!
+     spawn_chance: 0.1
+     drops:
+      pistonwithstickyoil:
+       material: PISTON_STICKY_BASE
+       amount: 2
+      DasRekker:
+       material: WOOD_SWORD 
+       amount: 1
+       chance: 0.1
+       lore: Das Rekker Wood Sword
+       enchants:
+        FA2:
+         enchant: FIRE_ASPECT
+         level: 2
+         S2:
+         enchant: DAMAGE_ALL
+         level: 2
+     buffs:
+      s4:
+       type: INCREASE_DAMAGE
+       level: 4
+      Fast4:
+       type: SPEED
+       level: 4
+     on_hit_debuffs:
+      Confused:
+       type: CONFUSION
+       level: 1
+       duration: 10s
+      blinded:
+       type: BLINDNESS
+       level: 1
+       duration: 5s
+      Slowness:
+       type: SLOW
+       level: 2
+       duration: 5s
+     blocks_to_spawn_on:
+      - STONE
+      - DIRT
+      - GRASS
+      - STATIONARY_LAVA
+      - STATIONARY_WATER 
+     blocks_to_spawn_in:
+      - AIR
+      - STATIONARY_LAVA
+      - STATIONARY_WATER 
+     health: 3000
+     despawn_on_chunk_unload: true
+     y_spawn_range: 16

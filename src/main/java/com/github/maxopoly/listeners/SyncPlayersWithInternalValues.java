@@ -9,28 +9,27 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 
-import com.github.maxopoly.managers.RepeatingEffectManager;
+import com.github.maxopoly.Effect;
+import com.github.maxopoly.EffectManager;
 import com.github.maxopoly.repeatingEffects.DaytimeModifier;
 import com.github.maxopoly.repeatingEffects.PotionBuff;
-import com.github.maxopoly.repeatingEffects.RepeatingEffect;
 import com.github.maxopoly.repeatingEffects.TitleDisplayer;
 import com.github.maxopoly.repeatingEffects.WeatherMachine;
 
 public class SyncPlayersWithInternalValues implements Listener {
-	RepeatingEffectManager manager;
+	EffectManager manager;
 
-	public SyncPlayersWithInternalValues(RepeatingEffectManager manager) {
+	public SyncPlayersWithInternalValues(EffectManager manager) {
 		this.manager = manager;
 	}
 
 	@EventHandler
 	public void changeWeatherAndDaytimeOnLogin(PlayerJoinEvent e) {
 		// Set that player hasnt been in an area to display a title
-		LinkedList<RepeatingEffect> titledisplayers = manager
+		LinkedList<Effect> titledisplayers = manager
 				.getEffects(TitleDisplayer.class);
-		for (RepeatingEffect td : titledisplayers) {
+		for (Effect td : titledisplayers) {
 			((TitleDisplayer) td).addPlayer(e.getPlayer(), false);
-
 		}
 
 		updateValues(e.getPlayer());

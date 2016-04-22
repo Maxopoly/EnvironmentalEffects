@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import org.bukkit.Location;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 import com.github.maxopoly.datarepresentations.Area;
@@ -22,9 +21,10 @@ import com.github.maxopoly.datarepresentations.PlayerEnvironmentState;
 public class FireBallRain extends RepeatingEffect {
 	private int range;
 
-	public FireBallRain(JavaPlugin plugin, LinkedList<Area> areas,
-			long frequency, int range, PlayerEnvironmentState pes) {
-		super(plugin, areas, frequency, pes);
+	public FireBallRain(LinkedList<Area> includedAreas,
+			LinkedList<Area> excludedAreas, long frequency, int range,
+			PlayerEnvironmentState pes) {
+		super(includedAreas, excludedAreas, frequency, pes);
 		this.range = range;
 	}
 
